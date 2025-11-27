@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đặt Phòng - Mường Thanh Hotel</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #c8102e;
+        --primary-dark: #a00d26;
+        --secondary: #f8f9fa;
+        --text-dark: #2c3e50;
+        --text-light: #6c757d;
+        --border-color: #e0e0e0;
+        --success: #28a745;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+        --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        color: var(--text-dark);
+        line-height: 1.6;
+      }
+
+      /* Navigation */
+      .navbar {
+        background: white;
+        box-shadow: var(--shadow-sm);
+        padding: 1rem 0;
+      }
+
+      .navbar-brand {
+        color: var(--primary) !important;
+        font-weight: 700;
+        font-size: 1.5rem;
+      }
+
+      .nav-link {
+        color: var(--text-dark) !important;
+        font-weight: 500;
+        padding: 0.5rem 1rem !important;
+        transition: all 0.3s;
+      }
+
+      .nav-link:hover {
+        color: var(--primary) !important;
+      }
+
+      /* Page Header */
+      .page-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .page-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .page-header-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      /* Main Container */
+      .booking-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px 60px;
+      }
+
+      .booking-grid {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 30px;
+      }
+
+      @media (max-width: 1024px) {
+        .booking-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Booking Form Card */
+      .booking-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: var(--shadow-md);
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-title i {
+        color: var(--primary);
+      }
+
+      /* Form Elements */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .form-label i {
+        color: var(--primary);
+        font-size: 0.9rem;
+      }
+
+      .required {
+        color: var(--primary);
+        margin-left: 4px;
+      }
+
+      .form-control,
+      .form-select {
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: white;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(200, 16, 46, 0.1);
+        outline: none;
+      }
+
+      .form-control::placeholder {
+        color: #adb5bd;
+      }
+
+      /* Input Icons */
+      .input-icon-wrapper {
+        position: relative;
+      }
+
+      .input-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+        pointer-events: none;
+      }
+
+      .input-icon-wrapper .form-control {
+        padding-left: 45px;
+      }
+
+      /* Date Range Grid */
+      .date-range-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      @media (max-width: 640px) {
+        .date-range-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Guest Counter */
+      .guest-counter-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      /* Promotion Code */
+      .promo-wrapper {
+        position: relative;
+      }
+
+      .promo-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-top: 8px;
+        transition: all 0.3s;
+      }
+
+      .promo-link:hover {
+        color: var(--primary-dark);
+        gap: 10px;
+      }
+
+      .promo-badge {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      /* Special Requests */
+      textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      /* Submit Button */
+      .btn-submit {
+        width: 100%;
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 16px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: var(--shadow-md);
+        margin-top: 2rem;
+      }
+
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .btn-submit:active {
+        transform: translateY(0);
+      }
+
+      /* Summary Sidebar */
+      .booking-summary {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: var(--shadow-md);
+        position: sticky;
+        top: 100px;
+        height: fit-content;
+      }
+
+      .summary-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
+      }
+
+      .room-preview {
+        margin-bottom: 1.5rem;
+      }
+
+      .room-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+      }
+
+      .room-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      .room-type {
+        color: var(--text-light);
+        font-size: 0.95rem;
+      }
+
+      .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .summary-item:last-child {
+        border-bottom: none;
+      }
+
+      .summary-label {
+        color: var(--text-light);
+        font-size: 0.95rem;
+      }
+
+      .summary-value {
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+
+      .price-total {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 1.5rem;
+      }
+
+      .price-total-label {
+        font-size: 1rem;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+      }
+
+      .price-total-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .features-list {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0 0 0;
+      }
+
+      .features-list li {
+        padding: 8px 0;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .features-list li i {
+        color: var(--success);
+        font-size: 0.9rem;
+      }
+
+      /* Alert Messages */
+      .alert {
+        border-radius: 12px;
+        border: none;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+      }
+
+      .alert-info {
+        background: #e3f2fd;
+        color: #1976d2;
+      }
+
+      .alert-warning {
+        background: #fff3e0;
+        color: #f57c00;
+      }
+
+      /* Loading State */
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .booking-card,
+      .booking-summary {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .booking-summary {
+        animation-delay: 0.2s;
+        animation-fill-mode: both;
+      }
+
+      /* Helper Text */
+      .form-text {
+        color: var(--text-light);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+      }
+
+      /* Input Group for Promo */
+      .input-group {
+        position: relative;
+      }
+
+      .input-group .btn-outline {
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .input-group .btn-outline:hover {
+        background: var(--primary-dark);
+      }
+
+      .input-group .form-control {
+        padding-right: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-hotel"></i> Mường Thanh Hotel
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/"
+                ><i class="fas fa-home"></i> Trang chủ</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/search"
+                ><i class="fas fa-search"></i> Tìm phòng</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/promotions"
+                ><i class="fas fa-gift"></i> Khuyến mãi</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="container">
+        <div class="page-header-content text-center">
+          <h1><i class="fas fa-calendar-check"></i> Đặt Phòng</h1>
+          <p class="lead mb-0">
+            Hoàn tất thông tin để xác nhận đặt phòng của bạn
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="booking-container">
+      <!-- Flash Messages -->
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <strong>Lưu ý:</strong> Vui lòng điền đầy đủ thông tin để chúng tôi có
+        thể phục vụ bạn tốt nhất
+      </div>
+
+      <div class="booking-grid">
+        <!-- Booking Form -->
+        <div class="booking-card">
+          <form method="POST" id="bookingForm">
+            <!-- Guest Information -->
+            <div class="section-title">
+              <i class="fas fa-user-circle"></i>
+              Thông Tin Khách Hàng
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-user"></i>
+                Họ và tên <span class="required">*</span>
+              </label>
+              <div class="input-icon-wrapper">
+                <i class="fas fa-user input-icon"></i>
+                <input
+                  type="text"
+                  name="guest_name"
+                  class="form-control"
+                  placeholder="Nhập họ và tên đầy đủ"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-phone"></i>
+                Số điện thoại <span class="required">*</span>
+              </label>
+              <div class="input-icon-wrapper">
+                <i class="fas fa-phone input-icon"></i>
+                <input
+                  type="tel"
+                  name="guest_phone"
+                  class="form-control"
+                  placeholder="0912 345 678"
+                  required
+                  pattern="[0-9]{10,11}"
+                />
+              </div>
+              <small class="form-text"
+                >Chúng tôi sẽ liên hệ qua số này để xác nhận đặt phòng</small
+              >
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-map-marker-alt"></i>
+                Địa chỉ
+              </label>
+              <div class="input-icon-wrapper">
+                <i class="fas fa-map-marker-alt input-icon"></i>
+                <input
+                  type="text"
+                  name="guest_address"
+                  class="form-control"
+                  placeholder="Địa chỉ của bạn (tùy chọn)"
+                />
+              </div>
+            </div>
+
+            <!-- Booking Details -->
+            <div class="section-title" style="margin-top: 2.5rem">
+              <i class="fas fa-calendar-alt"></i>
+              Chi Tiết Đặt Phòng
+            </div>
+
+            <div class="date-range-grid">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-calendar-check"></i>
+                  Ngày nhận phòng <span class="required">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="check_in"
+                  class="form-control"
+                  required
+                  min="2024-01-01"
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-calendar-times"></i>
+                  Ngày trả phòng <span class="required">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="check_out"
+                  class="form-control"
+                  required
+                  min="2024-01-02"
+                />
+              </div>
+            </div>
+
+            <div class="guest-counter-grid">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-users"></i>
+                  Số người lớn <span class="required">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="adults"
+                  class="form-control"
+                  min="1"
+                  max="10"
+                  value="1"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-child"></i>
+                  Số trẻ em
+                </label>
+                <input
+                  type="number"
+                  name="children"
+                  class="form-control"
+                  min="0"
+                  max="10"
+                  value="0"
+                />
+              </div>
+            </div>
+
+            <!-- Promotion Code -->
+            <div class="form-group" style="margin-top: 2rem">
+              <label class="form-label">
+                <i class="fas fa-gift"></i>
+                Mã giảm giá
+              </label>
+              <div class="input-group">
+                <input
+                  type="text"
+                  name="promotion_code"
+                  class="form-control"
+                  placeholder="Nhập mã khuyến mãi (nếu có)"
+                  style="text-transform: uppercase"
+                />
+                <button
+                  type="button"
+                  class="btn-outline"
+                  onclick="window.open('/promotions', '_blank')"
+                >
+                  <i class="fas fa-tags"></i> Xem mã
+                </button>
+              </div>
+              <a href="/promotions" target="_blank" class="promo-link">
+                <i class="fas fa-bolt"></i>
+                Xem tất cả mã khuyến mãi
+                <span class="promo-badge">HOT</span>
+              </a>
+            </div>
+
+            <!-- Special Requests -->
+            <div class="form-group" style="margin-top: 2rem">
+              <label class="form-label">
+                <i class="fas fa-comment-dots"></i>
+                Yêu cầu đặc biệt
+              </label>
+              <textarea
+                name="special_requests"
+                class="form-control"
+                placeholder="Ví dụ: Tầng cao, view biển, giường đôi, không hút thuốc..."
+              ></textarea>
+              <small class="form-text"
+                >Chúng tôi sẽ cố gắng đáp ứng yêu cầu của bạn tùy vào tình trạng
+                phòng</small
+              >
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-check-circle"></i> Xác Nhận Đặt Phòng
+            </button>
+          </form>
+        </div>
+
+        <!-- Booking Summary -->
+        <div class="booking-summary">
+          <div class="summary-title">
+            <i class="fas fa-file-invoice"></i> Tóm Tắt Đặt Phòng
+          </div>
+
+          <div class="room-preview">
+            <img
+              src="https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400"
+              alt="Room"
+              class="room-image"
+            />
+            <div class="room-name">Phòng Deluxe King</div>
+            <div class="room-type">
+              <i class="fas fa-bed"></i> 1 Giường King •
+              <i class="fas fa-users"></i> 2 Người
+            </div>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-label">Giá phòng/đêm</span>
+            <span class="summary-value">1,200,000đ</span>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-label">Số đêm</span>
+            <span class="summary-value" id="nightsCount">1 đêm</span>
+          </div>
+
+          <div class="summary-item">
+            <span class="summary-label">Thuế & phí</span>
+            <span class="summary-value">Đã bao gồm</span>
+          </div>
+
+          <div class="price-total">
+            <div class="price-total-label">Tổng cộng</div>
+            <div class="price-total-value" id="totalPrice">1,200,000đ</div>
+          </div>
+
+          <ul class="features-list">
+            <li><i class="fas fa-check-circle"></i> Miễn phí hủy trong 24h</li>
+            <li><i class="fas fa-check-circle"></i> Bao gồm bữa sáng</li>
+            <li><i class="fas fa-check-circle"></i> Wifi miễn phí</li>
+            <li><i class="fas fa-check-circle"></i> Bãi đỗ xe miễn phí</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Auto-calculate nights and total price
+      const checkInInput = document.querySelector('input[name="check_in"]');
+      const checkOutInput = document.querySelector('input[name="check_out"]');
+      const pricePerNight = 1200000;
+
+      function updateSummary() {
+        const checkIn = new Date(checkInInput.value);
+        const checkOut = new Date(checkOutInput.value);
+
+        if (checkInInput.value && checkOutInput.value && checkOut > checkIn) {
+          const nights = Math.ceil(
+            (checkOut - checkIn) / (1000 * 60 * 60 * 24)
+          );
+          const total = pricePerNight * nights;
+
+          document.getElementById("nightsCount").textContent = `${nights} đêm`;
+          document.getElementById("totalPrice").textContent =
+            total.toLocaleString("vi-VN") + "đ";
+        }
+      }
+
+      checkInInput.addEventListener("change", updateSummary);
+      checkOutInput.addEventListener("change", updateSummary);
+
+      // Set min dates
+      const today = new Date().toISOString().split("T")[0];
+      checkInInput.min = today;
+
+      checkInInput.addEventListener("change", function () {
+        const tomorrow = new Date(this.value);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        checkOutInput.min = tomorrow.toISOString().split("T")[0];
+      });
+
+      // Form validation
+      document
+        .getElementById("bookingForm")
+        .addEventListener("submit", function (e) {
+          const adults = parseInt(
+            document.querySelector('input[name="adults"]').value
+          );
+          const children = parseInt(
+            document.querySelector('input[name="children"]').value
+          );
+
+          if (adults + children > 4) {
+            e.preventDefault();
+            alert(
+              "Số lượng khách vượt quá sức chứa của phòng (tối đa 4 người)"
+            );
+            return false;
+          }
+        });
+
+      // Uppercase promo code
+      document
+        .querySelector('input[name="promotion_code"]')
+        .addEventListener("input", function (e) {
+          this.value = this.value.toUpperCase();
+        });
+    </script>
+  </body>
+</html>

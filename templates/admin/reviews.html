@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Đánh Giá - Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #c8102e;
+      }
+
+      body {
+        background: #f5f7fa;
+      }
+
+      .admin-header {
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+        padding: 20px 0;
+        margin-bottom: 30px;
+      }
+
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .stat-label {
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .filter-bar {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .review-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s;
+      }
+
+      .review-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .review-card.pending {
+        border-left: 4px solid #ffc107;
+      }
+
+      .review-card.approved {
+        border-left: 4px solid #28a745;
+      }
+
+      .review-card.rejected {
+        border-left: 4px solid #dc3545;
+      }
+
+      .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 15px;
+      }
+
+      .review-user {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .user-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      .user-info h5 {
+        margin: 0;
+        color: #333;
+      }
+
+      .user-info small {
+        color: #666;
+      }
+
+      .rating-stars {
+        color: #ffc107;
+        font-size: 20px;
+      }
+
+      .review-room {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+      }
+
+      .review-room-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .room-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+
+      .review-content {
+        margin: 15px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        line-height: 1.6;
+      }
+
+      .review-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .btn-review-action {
+        padding: 8px 20px;
+        border-radius: 6px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-approve {
+        background: #28a745;
+        color: white;
+      }
+
+      .btn-approve:hover {
+        background: #218838;
+      }
+
+      .btn-reject {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-reject:hover {
+        background: #c82333;
+      }
+
+      .btn-reply {
+        background: #007bff;
+        color: white;
+      }
+
+      .btn-reply:hover {
+        background: #0056b3;
+      }
+
+      .status-badge {
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .status-pending {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .status-approved {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .status-rejected {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .admin-reply {
+        margin-top: 15px;
+        padding: 15px;
+        background: #e7f3ff;
+        border-left: 4px solid #007bff;
+        border-radius: 4px;
+      }
+
+      .admin-reply-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #007bff;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 12px;
+      }
+
+      .empty-state i {
+        font-size: 80px;
+        color: #ddd;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-header">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="mb-0"><i class="fas fa-star"></i> Quản Lý Đánh Giá</h1>
+            <small>Duyệt và trả lời đánh giá từ khách hàng</small>
+          </div>
+          <a href="{{ url_for('admin_dashboard') }}" class="btn btn-light">
+            <i class="fas fa-arrow-left"></i> Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <!-- Statistics -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-number">{{ stats.total }}</div>
+          <div class="stat-label">Tổng đánh giá</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" style="color: #ffc107">
+            {{ stats.pending }}
+          </div>
+          <div class="stat-label">Chờ duyệt</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" style="color: #28a745">
+            {{ stats.approved }}
+          </div>
+          <div class="stat-label">Đã duyệt</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">
+            {{ stats.average_rating|round(1) }}
+            <i class="fas fa-star" style="color: #ffc107"></i>
+          </div>
+          <div class="stat-label">Đánh giá trung bình</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <div class="row align-items-center">
+          <div class="col-md-3">
+            <select class="form-select" id="statusFilter">
+              <option value="">Tất cả trạng thái</option>
+              <option value="pending" selected>Chờ duyệt</option>
+              <option value="approved">Đã duyệt</option>
+              <option value="rejected">Đã từ chối</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" id="ratingFilter">
+              <option value="">Tất cả đánh giá</option>
+              <option value="5">5 sao</option>
+              <option value="4">4 sao</option>
+              <option value="3">3 sao</option>
+              <option value="2">2 sao</option>
+              <option value="1">1 sao</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <input
+              type="text"
+              class="form-control"
+              id="searchInput"
+              placeholder="Tìm kiếm theo tên khách, phòng..."
+            />
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" onclick="applyFilters()">
+              <i class="fas fa-filter"></i> Lọc
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews List -->
+      {% if reviews %} {% for review in reviews %}
+      <div
+        class="review-card {{ review.status }}"
+        data-status="{{ review.status }}"
+        data-rating="{{ review.rating }}"
+      >
+        <div class="review-header">
+          <div class="review-user">
+            <div class="user-avatar">
+              {{ review.user.full_name[0]|upper if review.user else '?' }}
+            </div>
+            <div class="user-info">
+              <h5>
+                {{ review.user.full_name if review.user else 'Khách hàng' }}
+              </h5>
+              <small
+                ><i class="fas fa-clock"></i> {{
+                review.created_at.strftime('%d/%m/%Y %H:%M') }}</small
+              >
+            </div>
+          </div>
+          <div class="text-end">
+            <div class="rating-stars">
+              {% for i in range(review.rating) %}
+              <i class="fas fa-star"></i>
+              {% endfor %} {% for i in range(5 - review.rating) %}
+              <i class="far fa-star"></i>
+              {% endfor %}
+            </div>
+            <span class="status-badge status-{{ review.status }}">
+              {% if review.status == 'pending' %}
+              <i class="fas fa-clock"></i> Chờ duyệt {% elif review.status ==
+              'approved' %} <i class="fas fa-check"></i> Đã duyệt {% else %}
+              <i class="fas fa-times"></i> Đã từ chối {% endif %}
+            </span>
+          </div>
+        </div>
+
+        <!-- Room Info -->
+        <div class="review-room">
+          <div class="review-room-info">
+            <img
+              src="{{ review.room.image if review.room.image else url_for('static', filename='images/default-room.jpg') }}"
+              alt="Room"
+              class="room-image"
+            />
+            <div>
+              <strong
+                >{{ review.room.room_type }} - Phòng {{ review.room.room_number
+                }}</strong
+              ><br />
+              <small class="text-muted"
+                >{{ review.room.hotel.name if review.room.hotel else 'N/A'
+                }}</small
+              ><br />
+              <small
+                ><i class="fas fa-tag"></i> Mã ĐP: #{{ review.booking_id
+                }}</small
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Review Content -->
+        <div class="review-content">
+          <i class="fas fa-quote-left" style="color: var(--primary)"></i>
+          {{ review.comment }}
+          <i class="fas fa-quote-right" style="color: var(--primary)"></i>
+        </div>
+
+        <!-- Admin Reply -->
+        {% if review.admin_reply %}
+        <div class="admin-reply">
+          <div class="admin-reply-header">
+            <i class="fas fa-reply"></i> Phản hồi từ quản trị viên
+          </div>
+          <div>{{ review.admin_reply }}</div>
+          <small class="text-muted"
+            >{{ review.reply_at.strftime('%d/%m/%Y %H:%M') if review.reply_at
+            else '' }}</small
+          >
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="review-actions">
+          {% if review.status == 'pending' %}
+          <form
+            method="POST"
+            action="{{ url_for('admin_approve_review', review_id=review.id) }}"
+            style="display: inline"
+          >
+            <button type="submit" class="btn-review-action btn-approve">
+              <i class="fas fa-check"></i> Duyệt
+            </button>
+          </form>
+          <form
+            method="POST"
+            action="{{ url_for('admin_reject_review', review_id=review.id) }}"
+            style="display: inline"
+          >
+            <button type="submit" class="btn-review-action btn-reject">
+              <i class="fas fa-times"></i> Từ chối
+            </button>
+          </form>
+          {% endif %}
+
+          <button
+            class="btn-review-action btn-reply"
+            data-bs-toggle="modal"
+            data-bs-target="#replyModal"
+            onclick="setReplyReview({{ review.id }}, '{{ review.admin_reply if review.admin_reply else '' }}')"
+          >
+            <i class="fas fa-reply"></i> {{ 'Sửa phản hồi' if review.admin_reply
+            else 'Trả lời' }}
+          </button>
+
+          {% if review.status == 'approved' %}
+          <a
+            href="{{ url_for('room_detail', room_id=review.room_id) }}#reviews"
+            class="btn-review-action"
+            style="background: #6c757d; color: white"
+            target="_blank"
+          >
+            <i class="fas fa-eye"></i> Xem trên web
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %} {% else %}
+      <div class="empty-state">
+        <i class="fas fa-star"></i>
+        <h3>Chưa có đánh giá nào</h3>
+        <p class="text-muted">Đánh giá từ khách hàng sẽ hiển thị ở đây</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Reply Modal -->
+    <div class="modal fade" id="replyModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div
+            class="modal-header"
+            style="
+              background: linear-gradient(135deg, var(--primary), #a00d26);
+              color: white;
+            "
+          >
+            <h5 class="modal-title">
+              <i class="fas fa-reply"></i> Trả Lời Đánh Giá
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form method="POST" id="replyForm">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Nội dung phản hồi</label>
+                <textarea
+                  name="reply"
+                  class="form-control"
+                  rows="5"
+                  placeholder="Cảm ơn bạn đã đánh giá. Chúng tôi rất vui khi..."
+                  required
+                ></textarea>
+                <small class="text-muted"
+                  >Phản hồi sẽ được hiển thị công khai</small
+                >
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Hủy
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Gửi phản hồi
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function applyFilters() {
+        const status = document.getElementById("statusFilter").value;
+        const rating = document.getElementById("ratingFilter").value;
+        const search = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+
+        document.querySelectorAll(".review-card").forEach((card) => {
+          let show = true;
+
+          // Filter by status
+          if (status && card.dataset.status !== status) {
+            show = false;
+          }
+
+          // Filter by rating
+          if (rating && card.dataset.rating !== rating) {
+            show = false;
+          }
+
+          // Filter by search
+          if (search && !card.textContent.toLowerCase().includes(search)) {
+            show = false;
+          }
+
+          card.style.display = show ? "block" : "none";
+        });
+      }
+
+      // Auto filter on change
+      document
+        .getElementById("statusFilter")
+        .addEventListener("change", applyFilters);
+      document
+        .getElementById("ratingFilter")
+        .addEventListener("change", applyFilters);
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", applyFilters);
+
+      function setReplyReview(reviewId, currentReply) {
+        const form = document.getElementById("replyForm");
+        form.action = `/admin/reviews/${reviewId}/reply`;
+        form.querySelector('textarea[name="reply"]').value = currentReply;
+      }
+
+      // Initial filter - show pending reviews
+      window.addEventListener("load", applyFilters);
+    </script>
+  </body>
+</html>

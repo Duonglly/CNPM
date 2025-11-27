@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lịch sử đặt phòng - Mường Thanh</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #c8102e;
+        --primary-dark: #a00d26;
+        --warning: #ffc107;
+        --success: #28a745;
+        --info: #17a2b8;
+        --danger: #dc3545;
+      }
+      body {
+        background: #f5f7fa;
+        font-family: Arial, "Helvetica Neue", Helvetica, "Segoe UI", Tahoma,
+          Geneva, Verdana, sans-serif;
+      }
+      .page-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 40px;
+      }
+      .table thead {
+        background-color: var(--primary);
+        color: white;
+      }
+      /* Style cho trạng thái */
+      .status-pending {
+        color: var(--info);
+        font-weight: bold;
+      }
+      .status-confirmed {
+        color: var(--success);
+        font-weight: bold;
+      }
+      .status-completed {
+        color: #6c757d;
+        font-weight: bold;
+      }
+      .status-cancelled {
+        color: var(--danger);
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    {% include 'header.html' %}
+
+    <div class="page-header">
+      <div class="container">
+        <h1>Lịch sử đặt phòng</h1>
+        <p>Quản lý các đơn đặt phòng của bạn</p>
+      </div>
+    </div>
+
+    <div class="container my-5">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ category }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %} {% if bookings %}
+      <div class="table-responsive bg-white rounded shadow-sm p-3">
+        <table class="table table-hover table-bordered caption-top">
+          <caption>
+            Tổng cộng: {{ bookings | length }} đơn đặt phòng
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">#ID</th>
+              <th scope="col">Khách sạn & Phòng</th>
+              <th scope="col">Ngày nhận/trả</th>
+              <th scope="col">Tổng tiền</th>
+              <th scope="col">Trạng thái</th>
+              <th scope="col">Thanh toán</th>
+              <th scope="col" class="text-center">Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in bookings %}
+            <tr>
+              <th scope="row">{{ booking.id }}</th>
+              <td>
+                <strong>{{ booking.room.hotel.name }}</strong>
+                <br />
+                Phòng: {{ booking.room.room_type }} ({{ booking.room.room_number
+                }})
+              </td>
+              <td>
+                Nhận: {{ booking.check_in.strftime('%d/%m/%Y') }}
+                <br />
+                Trả: {{ booking.check_out.strftime('%d/%m/%Y') }} ({{
+                booking.nights }} đêm)
+              </td>
+              <td>
+                <strong>{{ booking.total_price | format_currency }}</strong>
+              </td>
+              <td>
+                {% if booking.status == 'pending' %}
+                <span class="status-pending"
+                  ><i class="fas fa-hourglass-half"></i> Chờ xác nhận</span
+                >
+                {% elif booking.status == 'confirmed' %}
+                <span class="status-confirmed"
+                  ><i class="fas fa-check-circle"></i> Đã xác nhận</span
+                >
+                {% elif booking.status == 'completed' %}
+                <span class="status-completed"
+                  ><i class="fas fa-check-double"></i> Hoàn thành</span
+                >
+                {% elif booking.status == 'cancelled' %}
+                <span class="status-cancelled"
+                  ><i class="fas fa-times-circle"></i> Đã hủy</span
+                >
+                {% endif %}
+              </td>
+              <td>
+                {% if booking.payment_status == 'paid' %}
+                <span class="text-success fw-bold"
+                  ><i class="fas fa-check"></i> Đã thanh toán</span
+                >
+                {% elif booking.payment_status == 'pending' %}
+                <span class="text-info fw-bold"
+                  ><i class="fas fa-money-check-alt"></i> Chờ duyệt</span
+                >
+                {% else %}
+                <span class="text-danger fw-bold"
+                  ><i class="fas fa-times"></i> Chưa thanh toán</span
+                >
+                {% endif %}
+              </td>
+              <td class="text-center">
+                {% if booking.can_review %}
+                <button
+                  class="btn btn-sm btn-warning mb-1"
+                  data-bs-toggle="modal"
+                  data-bs-target="#reviewModal{{ booking.id }}"
+                  title="Đánh giá phòng này"
+                >
+                  <i class="fas fa-star"></i> Đánh giá ngay
+                </button>
+                {% elif booking.status == 'completed' and booking.review %}
+                <span class="badge bg-success"
+                  ><i class="fas fa-check-circle"></i> Đã đánh giá</span
+                >
+                {% else %}
+                <button
+                  class="btn btn-sm btn-secondary mb-1"
+                  disabled
+                  title="Hoàn thành đơn hàng để đánh giá"
+                >
+                  Đánh giá
+                </button>
+                {% endif %}
+
+                <a
+                  href="{{ url_for('booking_detail', booking_id=booking.id) }}"
+                  class="btn btn-sm btn-info text-white mb-1"
+                  title="Xem chi tiết đơn hàng"
+                >
+                  <i class="fas fa-info-circle"></i> Chi tiết
+                </a>
+
+                {% if booking.status not in ['completed', 'cancelled'] and
+                booking.check_in > now %}
+                <form
+                  method="POST"
+                  action="{{ url_for('cancel_booking', booking_id=booking.id) }}"
+                  style="display: inline"
+                >
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-danger mb-1"
+                    onclick="return confirm('Bạn có chắc chắn muốn hủy đơn đặt phòng này?');"
+                    title="Hủy đơn đặt phòng"
+                  >
+                    <i class="fas fa-trash-alt"></i> Hủy
+                  </button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+
+            {% if booking.can_review %}
+            <div
+              class="modal fade"
+              id="reviewModal{{ booking.id }}"
+              tabindex="-1"
+              aria-labelledby="reviewModalLabel{{ booking.id }}"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form
+                    action="{{ url_for('add_review', booking_id=booking.id) }}"
+                    method="POST"
+                  >
+                    <div class="modal-header bg-warning text-white">
+                      <h5
+                        class="modal-title"
+                        id="reviewModalLabel{{ booking.id }}"
+                      >
+                        <i class="fas fa-star"></i> Đánh giá phòng {{
+                        booking.room.room_number }}
+                      </h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      <p class="mb-3">
+                        Chia sẻ trải nghiệm của bạn về phòng **{{
+                        booking.room.room_type }}** tại **{{
+                        booking.room.hotel.name }}**:
+                      </p>
+
+                      <div class="mb-3">
+                        <label class="form-label d-block"
+                          >Điểm đánh giá (1-5)</label
+                        >
+                        <div class="rating-input d-flex gap-2">
+                          {% for i in range(1, 6) %}
+                          <input
+                            type="radio"
+                            class="btn-check"
+                            name="rating"
+                            id="star{{ booking.id }}{{ i }}"
+                            value="{{ i }}"
+                            required
+                          />
+                          <label
+                            class="btn btn-outline-warning"
+                            for="star{{ booking.id }}{{ i }}"
+                            title="{{ i }} sao"
+                          >
+                            {{ i }} <i class="fas fa-star"></i>
+                          </label>
+                          {% endfor %}
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="comment{{ booking.id }}" class="form-label"
+                          >Bình luận (Tùy chọn)</label
+                        >
+                        <textarea
+                          class="form-control"
+                          name="comment"
+                          id="comment{{ booking.id }}"
+                          rows="3"
+                          placeholder="Viết đánh giá của bạn..."
+                        ></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Hủy
+                      </button>
+                      <button type="submit" class="btn btn-warning">
+                        Gửi đánh giá
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {% endif %} {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="alert alert-info text-center" role="alert">
+        <i class="fas fa-info-circle"></i> Bạn chưa có đơn đặt phòng nào.
+      </div>
+      {% endif %}
+    </div>
+
+    {% include 'footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

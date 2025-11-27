@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thanh toán - Đặt phòng #{{ booking.id }}</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      body {
+        background: #f5f7fa;
+        font-family: Arial, "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .payment-container {
+        max-width: 900px;
+        margin: 40px auto;
+      }
+      .payment-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .payment-header {
+        background: linear-gradient(135deg, #c8102e, #a00d26);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+      .payment-header h2 {
+        margin: 0 0 10px 0;
+        font-size: 28px;
+      }
+      .payment-amount {
+        font-size: 36px;
+        font-weight: 700;
+        margin: 15px 0;
+      }
+      .payment-methods {
+        padding: 30px;
+      }
+      .method-btn {
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+      }
+      .method-btn:hover {
+        border-color: #c8102e;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(200, 16, 46, 0.2);
+      }
+      .method-btn.active {
+        border-color: #c8102e;
+        background: #fff5f7;
+      }
+      .method-icon {
+        font-size: 40px;
+        width: 60px;
+        text-align: center;
+      }
+      .method-info {
+        flex: 1;
+        margin-left: 20px;
+      }
+      .method-name {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+      .method-desc {
+        color: #666;
+        font-size: 14px;
+      }
+      .method-badge {
+        background: #28a745;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .qr-section {
+        display: none;
+        background: #f8f9fa;
+        padding: 30px;
+        text-align: center;
+        border-radius: 12px;
+        margin-top: 20px;
+      }
+      .qr-section.active {
+        display: block;
+      }
+      .qr-code {
+        max-width: 250px;
+        margin: 20px auto;
+        border: 3px solid #c8102e;
+        border-radius: 12px;
+        padding: 15px;
+        background: white;
+      }
+      .btn-payment {
+        background: #c8102e;
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 18px;
+        font-weight: 600;
+        border-radius: 10px;
+        width: 100%;
+        margin-top: 20px;
+        transition: all 0.3s;
+      }
+      .btn-payment:hover {
+        background: #a00d26;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(200, 16, 46, 0.3);
+      }
+      .booking-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .info-row:last-child {
+        border-bottom: none;
+      }
+      .info-label {
+        color: #666;
+      }
+      .info-value {
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="payment-container">
+      {% with messages = get_flashed_messages(with_categories=true) %} 
+      {% if messages %} 
+      {% for category, message in messages %}
+      <div
+        class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %} 
+      {% endif %} 
+      {% endwith %}
+
+      <div class="payment-card">
+        <div class="payment-header">
+          <h2><i class="fas fa-credit-card"></i> Thanh toán đặt phòng</h2>
+          <div class="payment-amount">
+            {{ "{:,.0f}".format(booking.total_price) }}đ
+          </div>
+          <p class="mb-0">Mã đặt phòng: <strong>#{{ booking.id }}</strong></p>
+        </div>
+
+        <div class="payment-methods">
+          {% if booking.payment_status == 'paid' or booking.status == 'confirmed' %}
+          <div class="alert alert-success text-center">
+            <i class="fas fa-check-circle"></i> Đặt phòng đã được thanh toán và xác nhận.
+            <a href="{{ url_for('booking_confirm', booking_id=booking.id) }}" class="alert-link">Xem chi tiết</a>
+          </div>
+          {% elif booking.payment_status == 'pending' %}
+          <div class="alert alert-warning text-center">
+            <i class="fas fa-hourglass-half"></i> Thanh toán đang chờ xử lý. Vui lòng chờ admin xác nhận.
+            <a href="{{ url_for('booking_confirm', booking_id=booking.id) }}" class="alert-link">Xem trạng thái</a>
+          </div>
+          {% else %}
+
+          <div class="booking-info">
+            <h5 class="mb-3">
+              <i class="fas fa-info-circle"></i> Thông tin đặt phòng
+            </h5>
+            <div class="info-row">
+              <span class="info-label">Phòng:</span>
+              <span class="info-value"
+                >{{ booking.room.room_type }} - {{ booking.room.room_number
+                }}</span
+              >
+            </div>
+            <div class="info-row">
+              <span class="info-label">Check-in:</span>
+              <span class="info-value"
+                >{{ booking.check_in.strftime('%d/%m/%Y') }}</span
+              >
+            </div>
+            <div class="info-row">
+              <span class="info-label">Check-out:</span>
+              <span class="info-value"
+                >{{ booking.check_out.strftime('%d/%m/%Y') }}</span
+              >
+            </div>
+            <div class="info-row">
+              <span class="info-label">Số khách:</span>
+              <span class="info-value"
+                >{{ booking.adults }} người lớn, {{ booking.children }} trẻ
+                em</span
+              >
+            </div>
+          </div>
+
+          <h5 class="mb-3">
+            <i class="fas fa-wallet"></i> Chọn phương thức thanh toán
+          </h5>
+
+          <div class="method-btn" onclick="selectMethod('momo')">
+            <div class="method-icon" style="color: #a50064">
+              <i class="fas fa-mobile-alt"></i>
+            </div>
+            <div class="method-info">
+              <div class="method-name">Ví MoMo</div>
+              <div class="method-desc">Thanh toán qua ví điện tử MoMo (Mô phỏng)</div>
+            </div>
+            <span class="method-badge">Phổ biến</span>
+          </div>
+
+          <div class="method-btn" onclick="selectMethod('vnpay')">
+            <div class="method-icon" style="color: #0066b2">
+              <i class="fas fa-credit-card"></i>
+            </div>
+            <div class="method-info">
+              <div class="method-name">VNPay</div>
+              <div class="method-desc">
+                Thanh toán qua cổng VNPay (ATM/Visa/Master)
+              </div>
+            </div>
+            <span class="method-badge" style="background: #0066b2"
+              >An toàn</span
+            >
+          </div>
+
+          <div class="method-btn" onclick="selectMethod('zalopay')">
+            <div class="method-icon" style="color: #008fe5">
+              <i class="fab fa-alipay"></i>
+            </div>
+            <div class="method-info">
+              <div class="method-name">ZaloPay</div>
+              <div class="method-desc">Thanh toán qua ví điện tử ZaloPay (Mô phỏng)</div>
+            </div>
+          </div>
+
+          <div class="method-btn" onclick="selectMethod('banking')">
+            <div class="method-icon" style="color: #ff6b00">
+              <i class="fas fa-university"></i>
+            </div>
+            <div class="method-info">
+              <div class="method-name">Chuyển khoản ngân hàng</div>
+              <div class="method-desc">
+                Quét mã QR hoặc chuyển khoản thủ công
+              </div>
+            </div>
+          </div>
+
+          <div class="qr-section" id="qrSection">
+            <h5><i class="fas fa-qrcode"></i> Quét mã QR để chuyển khoản</h5>
+            {% if qr_b64 %}
+            <div class="qr-code">
+              <img
+                src="data:image/png;base64,{{ qr_b64 }}"
+                alt="QR Code"
+                class="img-fluid"
+              />
+            </div>
+            <div class="alert alert-info mt-3">
+              <strong>Thông tin chuyển khoản:</strong><br />
+              Ngân hàng: <strong>Vietcombank</strong><br />
+              STK: <strong>1234567890</strong><br />
+              Chủ TK: <strong>KHACH SAN MUONG THANH</strong><br />
+              Số tiền:
+              <strong>{{ "{:,.0f}".format(booking.total_price) }}đ</strong
+              ><br />
+              Nội dung: <strong>DAT PHONG #{{ booking.id }}</strong>
+            </div>
+            <form
+              action="{{ url_for('confirm_qr_payment', booking_id=booking.id) }}"
+              method="POST"
+            >
+              <button type="submit" class="btn-payment">
+                <i class="fas fa-check-circle"></i> Tôi đã chuyển khoản
+              </button>
+            </form>
+            {% else %}
+            <div class="alert alert-warning">
+              QR code tạm thời không khả dụng
+            </div>
+            {% endif %}
+          </div>
+
+          <div id="paymentButtons" style="display: none">
+            <button onclick="processPayment()" class="btn-payment">
+              <i class="fas fa-lock"></i> Thanh toán ngay
+            </button>
+          </div>
+
+          <div class="text-center mt-3">
+            <small class="text-muted">
+              <i class="fas fa-shield-alt"></i> Giao dịch được bảo mật SSL
+              256-bit
+            </small>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let selectedMethod = null;
+
+      function selectMethod(method) {
+        selectedMethod = method;
+
+        // Remove active class from all
+        document.querySelectorAll('.method-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+
+        // Add active class to selected
+        event.currentTarget.classList.add('active');
+
+        // Show/hide sections
+        if (method === 'banking') {
+          document.getElementById('qrSection').classList.add('active');
+          document.getElementById('paymentButtons').style.display = 'none';
+        } else {
+          document.getElementById('qrSection').classList.remove('active');
+          document.getElementById('paymentButtons').style.display = 'block';
+        }
+      }
+
+      function processPayment() {
+        if (!selectedMethod) {
+          alert('Vui lòng chọn phương thức thanh toán');
+          return;
+        }
+
+        // Lấy bookingId từ Jinja2
+        const bookingId = {{ booking.id }};
+        
+        // Cập nhật URLs để khớp với logic trong app.py
+        const paymentUrls = {
+            // MoMo (sử dụng simulate)
+            'momo': "{{ url_for('payment_momo_simulate', booking_id=booking.id) }}", 
+            // VNPay (sử dụng route thực tế)
+            'vnpay': "{{ url_for('payment_vnpay', booking_id=booking.id) }}",
+            // ZaloPay (sử dụng simulate)
+            'zalopay': "{{ url_for('payment_zalopay_simulate', booking_id=booking.id) }}"
+        };
+
+        if (paymentUrls[selectedMethod]) {
+          // Show loading
+          const btn = event.target;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang chuyển hướng...';
+          btn.disabled = true;
+
+          // Redirect
+          setTimeout(() => {
+            window.location.href = paymentUrls[selectedMethod];
+          }, 500);
+        }
+      }
+    </script>
+  </body>
+</html>

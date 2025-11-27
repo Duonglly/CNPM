@@ -1,0 +1,36 @@
+<header class="py-2 bg-danger text-white">
+  <div class="container d-flex justify-content-between align-items-center">
+    <a
+      href="{{ url_for('index') }}"
+      class="text-white text-decoration-none fs-5"
+    >
+      <strong>MT</strong> Mường Thanh
+    </a>
+    <div class="d-flex align-items-center">
+      {% if 'user_id' in session %}
+      <span class="me-3"
+        >Xin chào, <strong>{{ session['full_name'] or 'Khách' }}</strong></span
+      >
+      <a
+        href="{{ url_for('my_bookings') }}"
+        class="btn btn-sm btn-outline-light me-2"
+      >
+        <i class="fas fa-list"></i> Đặt phòng của tôi
+      </a>
+      <a href="{{ url_for('my_account') }}" class="btn btn-sm btn-light me-2">
+        <i class="fas fa-user-circle"></i> Tài khoản
+      </a>
+      <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">
+        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+      </a>
+      {% else %}
+      <a href="{{ url_for('login') }}" class="text-white me-3">
+        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+      </a>
+      <a href="{{ url_for('register') }}" class="btn btn-sm btn-outline-light">
+        <i class="fas fa-user-plus"></i> Đăng ký
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</header>

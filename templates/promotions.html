@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mã Khuyến Mãi - Mường Thanh Hotel</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #c8102e;
+      }
+
+      .promo-banner {
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+        padding: 60px 0;
+        margin-bottom: 40px;
+      }
+
+      .promo-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        border: 3px solid #f0f0f0;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .promo-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(200, 16, 46, 0.2);
+        border-color: var(--primary);
+      }
+
+      .discount-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        color: white;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+      }
+
+      .discount-number {
+        font-size: 28px;
+        line-height: 1;
+      }
+
+      .discount-percent {
+        font-size: 14px;
+      }
+
+      .promo-code {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin: 15px 0;
+        border: 2px dashed white;
+      }
+
+      .copy-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 600;
+      }
+
+      .copy-btn:hover {
+        background: #218838;
+        transform: scale(1.05);
+      }
+
+      .promo-description {
+        color: #666;
+        font-size: 15px;
+        margin: 15px 0;
+        line-height: 1.6;
+      }
+
+      .promo-details {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .promo-detail-item {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .promo-detail-item i {
+        color: var(--primary);
+        margin-right: 8px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+      }
+
+      .empty-state i {
+        font-size: 80px;
+        color: #ddd;
+        margin-bottom: 20px;
+      }
+
+      .btn-book {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 15px;
+      }
+
+      .btn-book:hover {
+        background: #a00d26;
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .validity-badge {
+        background: #28a745;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+      <div class="container">
+        <a
+          class="navbar-brand fw-bold"
+          href="{{ url_for('index') }}"
+          style="color: var(--primary)"
+        >
+          <i class="fas fa-hotel"></i> Mường Thanh Hotel
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('index') }}">Trang chủ</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('search') }}">Tìm phòng</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="{{ url_for('promotions') }}"
+                >Khuyến mãi</a
+              >
+            </li>
+            {% if session.get('user_id') %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('my_bookings') }}"
+                >Đặt phòng của tôi</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('logout') }}">Đăng xuất</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('login') }}">Đăng nhập</a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Banner -->
+    <div class="promo-banner">
+      <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-3">
+          <i class="fas fa-gift"></i> Mã Khuyến Mãi Đặc Biệt
+        </h1>
+        <p class="lead">Tiết kiệm ngay khi đặt phòng tại Mường Thanh Hotel</p>
+      </div>
+    </div>
+
+    <!-- Promotions List -->
+    <div class="container mb-5">
+      {% if promotions %}
+      <div class="row">
+        {% for promo in promotions %}
+        <div class="col-md-6 col-lg-4">
+          <div class="promo-card">
+            <div class="discount-badge">
+              <div class="discount-number">
+                {{ promo.discount_percent|int }}
+              </div>
+              <div class="discount-percent">%OFF</div>
+            </div>
+
+            <h4 class="fw-bold mb-2">
+              {{ promo.description or 'Khuyến mãi đặc biệt' }}
+            </h4>
+
+            <div class="promo-code" id="code-{{ promo.id }}">
+              {{ promo.code }}
+            </div>
+
+            <button
+              class="copy-btn"
+              onclick="copyCode('{{ promo.code }}', {{ promo.id }})"
+            >
+              <i class="fas fa-copy"></i> Sao chép mã
+            </button>
+
+            <div class="promo-details">
+              <div class="promo-detail-item">
+                <i class="fas fa-shopping-cart"></i>
+                Đơn tối thiểu:
+                <strong>{{ "{:,.0f}".format(promo.min_amount) }}đ</strong>
+              </div>
+
+              {% if promo.max_uses %}
+              <div class="promo-detail-item">
+                <i class="fas fa-users"></i>
+                Còn lại:
+                <strong
+                  >{{ promo.max_uses - promo.current_uses }}/{{ promo.max_uses
+                  }}</strong
+                >
+              </div>
+              {% else %}
+              <div class="promo-detail-item">
+                <i class="fas fa-infinity"></i>
+                <strong>Không giới hạn</strong>
+              </div>
+              {% endif %}
+
+              <div class="promo-detail-item">
+                <i class="fas fa-calendar"></i>
+                Đến {{ promo.end_date.strftime('%d/%m/%Y') }}
+              </div>
+            </div>
+
+            <a href="{{ url_for('search') }}" class="btn-book">
+              <i class="fas fa-search"></i> Tìm phòng ngay
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fas fa-tags"></i>
+        <h3>Hiện chưa có mã khuyến mãi</h3>
+        <p class="text-muted">Vui lòng quay lại sau để nhận ưu đãi tốt nhất!</p>
+        <a href="{{ url_for('search') }}" class="btn-book">
+          <i class="fas fa-search"></i> Tìm phòng
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function copyCode(code, id) {
+        navigator.clipboard.writeText(code).then(() => {
+          const btn = event.target.closest("button");
+          const originalHTML = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-check"></i> Đã sao chép!';
+          btn.style.background = "#28a745";
+
+          setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.style.background = "#28a745";
+          }, 2000);
+        });
+      }
+    </script>
+  </body>
+</html>

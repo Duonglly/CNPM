@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chi Tiết Đặt Phòng #{{ booking.id }}</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #c8102e;
+        --primary-dark: #a00d26;
+        --secondary: #f8f9fa;
+        --text-dark: #333;
+        --text-light: #666;
+        --border: #e0e0e0;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --info: #0d6efd;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: var(--secondary);
+        padding: 20px;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 40px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: var(--primary);
+        border-bottom: 3px solid var(--border);
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        font-size: 28px;
+      }
+      h2 {
+        color: var(--text-dark);
+        margin-top: 25px;
+        margin-bottom: 15px;
+        font-size: 22px;
+      }
+      .card-section {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 25px;
+        padding: 20px;
+      }
+
+      /* Thông tin cơ bản */
+      .booking-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .info-item {
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--border);
+      }
+      .info-item:last-child {
+        border-bottom: none;
+      }
+      .info-item strong {
+        display: block;
+        color: var(--text-light);
+        font-size: 14px;
+        margin-bottom: 3px;
+      }
+      .info-item span {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 16px;
+      }
+
+      /* Trạng thái đặt phòng */
+      .status-badge {
+        display: inline-block;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+        text-transform: uppercase;
+        margin-top: 5px;
+      }
+      .status-pending {
+        background-color: var(--warning);
+        color: white;
+      }
+      .status-confirmed {
+        background-color: var(--success);
+        color: white;
+      }
+      .status-cancelled {
+        background-color: var(--danger);
+        color: white;
+      }
+      .status-checked-in {
+        background-color: var(--info);
+        color: white;
+      }
+      .status-completed {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      /* Timeline */
+      .timeline {
+        position: relative;
+        padding: 20px 0;
+        margin-left: 20px;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 3px;
+        background-color: var(--border);
+      }
+      .timeline-item {
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 25px;
+      }
+      .timeline-icon {
+        position: absolute;
+        left: -12px;
+        top: 0;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: white;
+        border: 4px solid var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 12px;
+      }
+      .timeline-item.active .timeline-icon {
+        background-color: var(--primary);
+        color: white;
+        border-color: var(--primary-dark);
+      }
+      .timeline-content h4 {
+        margin: 0 0 5px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+      .timeline-content p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--text-light);
+      }
+
+      /* Price Breakdown */
+      .price-breakdown table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+      .price-breakdown th,
+      .price-breakdown td {
+        padding: 12px 0;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+      }
+      .price-breakdown th {
+        background-color: var(--secondary);
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+      .price-breakdown tr:last-child td {
+        border-bottom: none;
+      }
+      .price-breakdown .total-row td {
+        font-weight: bold;
+        color: var(--primary);
+        font-size: 18px;
+        border-top: 2px solid var(--primary);
+      }
+      .price-breakdown td:last-child {
+        text-align: right;
+      }
+      .discount-row td {
+        color: var(--success);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .booking-info {
+          grid-template-columns: 1fr;
+        }
+        .container {
+          margin: 20px 10px;
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Chi Tiết Đặt Phòng #{{ booking.id }}</h1>
+
+      <div class="card-section">
+        <h2>Thông Tin Đặt Phòng Chính 🏨</h2>
+        <div class="booking-info">
+          <div class="info-item">
+            <strong>Khách sạn</strong>
+            <span>{{ booking.hotel_name }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Phòng đã đặt</strong>
+            <span>{{ booking.room_name }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Ngày nhận phòng</strong>
+            <span>{{ booking.check_in_date }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Ngày trả phòng</strong>
+            <span>{{ booking.check_out_date }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Số đêm</strong>
+            <span>{{ booking.nights }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Số lượng khách</strong>
+            <span
+              >{{ booking.guests }} người lớn, {{ booking.children }} trẻ
+              em</span
+            >
+          </div>
+          <div class="info-item">
+            <strong>Tên khách hàng</strong>
+            <span>{{ booking.full_name }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Trạng thái hiện tại</strong>
+            <span>
+              <span
+                class="status-badge status-{{ booking.status | lower | replace(' ', '-') }}"
+              >
+                {{ booking.status }}
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <h2>Lịch Sử Trạng Thái (Timeline) ⏳</h2>
+        <div class="timeline">
+          {% for item in booking.history %}
+          <div class="timeline-item {% if item.is_current %}active{% endif %}">
+            <div class="timeline-icon">
+              {% if item.is_current %}
+              <i class="fas fa-check"></i>
+              {% else %}
+              <i class="fas fa-circle"></i>
+              {% endif %}
+            </div>
+            <div class="timeline-content">
+              <h4>{{ item.status }}</h4>
+              <p>{{ item.date }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card-section price-breakdown">
+        <h2>Chi Tiết Giá 💸</h2>
+        <table>
+          <thead>
+            <tr>
+              <th colspan="2">Mô tả</th>
+              <th>Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in booking.price_details %}
+            <tr class="{% if item.type == 'discount' %}discount-row{% endif %}">
+              <td colspan="2">{{ item.description }}</td>
+              <td>
+                {% if item.type == 'discount' %}-{% endif %}{{ item.amount |
+                format_currency }}
+              </td>
+            </tr>
+            {% endfor %}
+
+            <tr>
+              <td colspan="2">Giá phòng ({{ booking.nights }} đêm)</td>
+              <td>{{ booking.room_price_base | format_currency }}</td>
+            </tr>
+            <tr class="discount-row">
+              <td colspan="2">Giảm giá mã khuyến mãi (MTA-SALE)</td>
+              <td>- {{ booking.discount_amount | format_currency }}</td>
+            </tr>
+            <tr>
+              <td colspan="2">Thuế VAT (10%)</td>
+              <td>{{ booking.tax_amount | format_currency }}</td>
+            </tr>
+
+            <tr class="total-row">
+              <td colspan="2">Tổng cộng (Đã bao gồm thuế)</td>
+              <td>{{ booking.total_price | format_currency }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="text-align: center; margin-top: 30px">
+        {% if booking.status == 'Pending' %}
+        <a
+          href="{{ url_for('payment', booking_id=booking.id) }}"
+          class="btn"
+          style="
+            background: var(--success);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+          "
+          >Tiến hành thanh toán</a
+        >
+        {% endif %} {% if booking.status != 'Cancelled' and booking.status !=
+        'Completed' %}
+        <button
+          onclick="confirmCancel()"
+          class="btn"
+          style="
+            background: var(--danger);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 15px;
+            border: none;
+            cursor: pointer;
+          "
+        >
+          Hủy đặt phòng
+        </button>
+        {% endif %}
+      </div>
+    </div>
+
+    <script>
+      // Hàm giả định để format tiền tệ (cần được định nghĩa trong môi trường thực)
+      // Trong môi trường Jinja2, bạn nên dùng filter `format_currency` nếu có.
+      function format_currency(amount) {
+        return new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(amount);
+      }
+
+      // Script xử lý nút Hủy
+      function confirmCancel() {
+        if (
+          confirm(
+            "Bạn có chắc chắn muốn hủy đặt phòng này? Thao tác này không thể hoàn tác."
+          )
+        ) {
+          // Thay thế bằng logic gọi API hủy đặt phòng thực tế
+          alert("Đã gửi yêu cầu hủy đặt phòng. Vui lòng chờ xác nhận.");
+          // window.location.href = "{{ url_for('cancel_booking', booking_id=booking.id) }}";
+        }
+      }
+
+      // Cập nhật giá trị mẫu nếu cần thiết (chỉ dùng cho mục đích demo)
+      document.addEventListener("DOMContentLoaded", () => {
+        const totalElement = document.querySelector(".total-row td:last-child");
+        if (totalElement.textContent.includes("{{ booking.total_price }}")) {
+          // Format lại giá trị tổng tiền nếu nó là một biến số
+          // totalElement.textContent = format_currency({{ booking.total_price }});
+        }
+      });
+    </script>
+  </body>
+</html>

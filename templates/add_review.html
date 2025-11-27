@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đánh giá phòng - Mường Thanh</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #c8102e;
+        --primary-dark: #a00d26;
+      }
+
+      body {
+        background: #f5f7fa;
+        font-family: Arial, "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .page-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 40px;
+      }
+
+      .review-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .booking-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+      }
+
+      .booking-info h5 {
+        color: var(--primary);
+        margin-bottom: 15px;
+      }
+
+      .booking-detail {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .booking-detail:last-child {
+        border-bottom: none;
+      }
+
+      .rating-section {
+        margin: 30px 0;
+      }
+
+      .rating-section h4 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .star-rating {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+
+      .star {
+        font-size: 48px;
+        color: #ddd;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .star:hover,
+      .star.active {
+        color: #ffc107;
+        transform: scale(1.2);
+      }
+
+      .rating-text {
+        text-align: center;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary);
+        margin-top: 15px;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .form-control {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        transition: border-color 0.3s;
+      }
+
+      .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(200, 16, 46, 0.1);
+      }
+
+      textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+      }
+
+      .btn-submit {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        width: 100%;
+      }
+
+      .btn-submit:hover {
+        background: var(--primary-dark);
+      }
+
+      .btn-submit:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      .guidelines {
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 25px;
+      }
+
+      .guidelines h6 {
+        color: #0066cc;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .guidelines ul {
+        margin: 0;
+        padding-left: 20px;
+        font-size: 14px;
+        color: #555;
+      }
+
+      .guidelines li {
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <div class="container">
+        <a
+          href="{{ url_for('my_bookings') }}"
+          class="text-white text-decoration-none mb-3 d-inline-block"
+        >
+          <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+        <h1><i class="fas fa-star"></i> Đánh Giá Phòng</h1>
+        <p class="mb-0">Chia sẻ trải nghiệm của bạn để giúp người khác</p>
+      </div>
+    </div>
+
+    <div class="container pb-5">
+      <div class="review-card">
+        <!-- Booking Information -->
+        <div class="booking-info">
+          <h5><i class="fas fa-bed"></i> Thông tin đặt phòng</h5>
+          <div class="booking-detail">
+            <strong>Phòng:</strong>
+            <span
+              >{{ booking.room.room_type }} - Phòng {{ booking.room.room_number
+              }}</span
+            >
+          </div>
+          <div class="booking-detail">
+            <strong>Khách sạn:</strong>
+            <span
+              >{{ booking.room.hotel.name if booking.room.hotel else 'N/A'
+              }}</span
+            >
+          </div>
+          <div class="booking-detail">
+            <strong>Thời gian:</strong>
+            <span
+              >{{ booking.check_in.strftime('%d/%m/%Y') }} - {{
+              booking.check_out.strftime('%d/%m/%Y') }}</span
+            >
+          </div>
+          <div class="booking-detail">
+            <strong>Mã đặt phòng:</strong>
+            <span>#{{ booking.id }}</span>
+          </div>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="guidelines">
+          <h6><i class="fas fa-info-circle"></i> Hướng dẫn đánh giá</h6>
+          <ul>
+            <li>Đánh giá trung thực dựa trên trải nghiệm thực tế của bạn</li>
+            <li>Nêu rõ điểm tốt và điểm cần cải thiện</li>
+            <li>Tránh sử dụng ngôn từ phản cảm, xúc phạm</li>
+            <li>Đánh giá sẽ được kiểm duyệt trước khi hiển thị</li>
+          </ul>
+        </div>
+
+        <!-- Review Form -->
+        <form
+          action="{{ url_for('add_review', booking_id=booking.id) }}"
+          method="POST"
+          id="reviewForm"
+        >
+          <!-- Rating -->
+          <div class="rating-section">
+            <h4 class="text-center">Bạn đánh giá phòng này như thế nào?</h4>
+            <div class="star-rating">
+              <i class="fas fa-star star" data-rating="1"></i>
+              <i class="fas fa-star star" data-rating="2"></i>
+              <i class="fas fa-star star" data-rating="3"></i>
+              <i class="fas fa-star star" data-rating="4"></i>
+              <i class="fas fa-star star" data-rating="5"></i>
+            </div>
+            <div class="rating-text" id="ratingText">Chọn số sao</div>
+            <input type="hidden" name="rating" id="ratingInput" required />
+          </div>
+
+          <!-- Comment -->
+          <div class="mb-4">
+            <label for="comment" class="form-label">
+              <i class="fas fa-comment-dots"></i> Đánh giá chi tiết
+            </label>
+            <textarea
+              name="comment"
+              id="comment"
+              class="form-control"
+              placeholder="Chia sẻ trải nghiệm của bạn về phòng, dịch vụ, vị trí, tiện nghi..."
+              required
+              minlength="20"
+              maxlength="1000"
+            ></textarea>
+            <small class="text-muted">
+              <span id="charCount">0</span>/1000 ký tự (Tối thiểu 20 ký tự)
+            </small>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-submit" id="submitBtn" disabled>
+            <i class="fas fa-paper-plane"></i> Gửi đánh giá
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Star rating functionality
+      const stars = document.querySelectorAll(".star");
+      const ratingInput = document.getElementById("ratingInput");
+      const ratingText = document.getElementById("ratingText");
+      const submitBtn = document.getElementById("submitBtn");
+      const commentInput = document.getElementById("comment");
+      const charCount = document.getElementById("charCount");
+
+      const ratingTexts = {
+        1: "⭐ Rất tệ",
+        2: "⭐⭐ Tệ",
+        3: "⭐⭐⭐ Trung bình",
+        4: "⭐⭐⭐⭐ Tốt",
+        5: "⭐⭐⭐⭐⭐ Xuất sắc",
+      };
+
+      let selectedRating = 0;
+
+      stars.forEach((star) => {
+        star.addEventListener("click", function () {
+          selectedRating = parseInt(this.dataset.rating);
+          ratingInput.value = selectedRating;
+          updateStars(selectedRating);
+          ratingText.textContent = ratingTexts[selectedRating];
+          checkFormValid();
+        });
+
+        star.addEventListener("mouseenter", function () {
+          const hoverRating = parseInt(this.dataset.rating);
+          updateStars(hoverRating);
+          ratingText.textContent = ratingTexts[hoverRating];
+        });
+      });
+
+      document
+        .querySelector(".star-rating")
+        .addEventListener("mouseleave", function () {
+          updateStars(selectedRating);
+          if (selectedRating > 0) {
+            ratingText.textContent = ratingTexts[selectedRating];
+          } else {
+            ratingText.textContent = "Chọn số sao";
+          }
+        });
+
+      function updateStars(rating) {
+        stars.forEach((star, index) => {
+          if (index < rating) {
+            star.classList.add("active");
+          } else {
+            star.classList.remove("active");
+          }
+        });
+      }
+
+      // Character counter
+      commentInput.addEventListener("input", function () {
+        const length = this.value.length;
+        charCount.textContent = length;
+        checkFormValid();
+      });
+
+      // Form validation
+      function checkFormValid() {
+        const rating = parseInt(ratingInput.value);
+        const commentLength = commentInput.value.trim().length;
+
+        if (rating > 0 && commentLength >= 20) {
+          submitBtn.disabled = false;
+        } else {
+          submitBtn.disabled = true;
+        }
+      }
+
+      // Form submission
+      document
+        .getElementById("reviewForm")
+        .addEventListener("submit", function (e) {
+          if (!ratingInput.value || commentInput.value.trim().length < 20) {
+            e.preventDefault();
+            alert("Vui lòng chọn số sao và viết đánh giá tối thiểu 20 ký tự");
+          }
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sơ Đồ Phòng - Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #c8102e;
+        --available: #28a745;
+        --occupied: #dc3545;
+        --reserved: #ffc107;
+        --maintenance: #6c757d;
+      }
+
+      body {
+        background: #f5f7fa;
+      }
+
+      .admin-header {
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+        padding: 20px 0;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .filter-bar {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+      }
+
+      .hotel-section {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .hotel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .hotel-name {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .hotel-stats {
+        display: flex;
+        gap: 20px;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 8px 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+
+      .stat-number {
+        font-size: 20px;
+        font-weight: 700;
+        display: block;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+      }
+
+      .floor-section {
+        margin-bottom: 30px;
+      }
+
+      .floor-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 15px;
+        padding: 10px 15px;
+        background: #f8f9fa;
+        border-left: 4px solid var(--primary);
+        border-radius: 4px;
+      }
+
+      .rooms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px;
+      }
+
+      .room-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .room-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+      }
+
+      .room-card.available {
+        border-color: var(--available);
+      }
+
+      .room-card.available::before {
+        background: var(--available);
+      }
+
+      .room-card.occupied {
+        border-color: var(--occupied);
+      }
+
+      .room-card.occupied::before {
+        background: var(--occupied);
+      }
+
+      .room-card.reserved {
+        border-color: var(--reserved);
+      }
+
+      .room-card.reserved::before {
+        background: var(--reserved);
+      }
+
+      .room-card.maintenance {
+        border-color: var(--maintenance);
+        opacity: 0.7;
+      }
+
+      .room-card.maintenance::before {
+        background: var(--maintenance);
+      }
+
+      .room-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .room-number {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .room-type {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+
+      .room-status {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .room-status.available {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .room-status.occupied {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .room-status.reserved {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .room-status.maintenance {
+        background: #e2e3e5;
+        color: #383d41;
+      }
+
+      .legend {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .legend-color {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+      }
+
+      .modal-content {
+        border-radius: 12px;
+      }
+
+      .modal-header {
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+        border-radius: 12px 12px 0 0;
+      }
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .info-row:last-child {
+        border-bottom: none;
+      }
+
+      .booking-timeline {
+        margin-top: 20px;
+      }
+
+      .timeline-item {
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        border-left: 3px solid var(--primary);
+      }
+
+      .quick-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .btn-action {
+        flex: 1;
+        padding: 8px;
+        border-radius: 6px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .date-indicator {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Admin Header -->
+    <div class="admin-header">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="mb-0">
+              <i class="fas fa-map-marked-alt"></i> Sơ Đồ Phòng
+            </h1>
+            <small>Giám sát tình trạng phòng theo thời gian thực</small>
+          </div>
+          <a href="{{ url_for('admin_dashboard') }}" class="btn btn-light">
+            <i class="fas fa-arrow-left"></i> Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="row align-items-center">
+          <div class="col-md-3">
+            <label class="form-label fw-bold">Địa điểm</label>
+            <select class="form-select" id="locationFilter">
+              <option value="">Tất cả địa điểm</option>
+              {% for location in locations %}
+              <option value="{{ location.id }}">{{ location.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-bold">Khách sạn</label>
+            <select class="form-select" id="hotelFilter">
+              <option value="">Tất cả khách sạn</option>
+              {% for hotel in hotels %}
+              <option
+                value="{{ hotel.id }}"
+                data-location="{{ hotel.location_id }}"
+              >
+                {{ hotel.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-bold">Ngày kiểm tra</label>
+            <input
+              type="date"
+              class="form-control"
+              id="checkDate"
+              value="{{ today }}"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-bold">Trạng thái</label>
+            <select class="form-select" id="statusFilter">
+              <option value="">Tất cả</option>
+              <option value="available">Trống</option>
+              <option value="reserved">Đã đặt</option>
+              <option value="occupied">Đang ở</option>
+              <option value="maintenance">Bảo trì</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: var(--available)"></div>
+          <span><strong>Trống</strong> - Sẵn sàng đón khách</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: var(--reserved)"></div>
+          <span><strong>Đã đặt</strong> - Chưa check-in</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: var(--occupied)"></div>
+          <span><strong>Đang ở</strong> - Đã check-in</span>
+        </div>
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: var(--maintenance)"
+          ></div>
+          <span><strong>Bảo trì</strong> - Không khả dụng</span>
+        </div>
+      </div>
+
+      <!-- Hotels & Rooms -->
+      {% for hotel in hotels %}
+      <div
+        class="hotel-section"
+        data-hotel-id="{{ hotel.id }}"
+        data-location-id="{{ hotel.location_id }}"
+      >
+        <div class="hotel-header">
+          <div>
+            <div class="hotel-name">
+              <i class="fas fa-hotel"></i> {{ hotel.name }}
+            </div>
+            <small class="text-muted"
+              >{{ hotel.location.name if hotel.location else '' }}</small
+            >
+          </div>
+          <div class="hotel-stats">
+            <div class="stat-item">
+              <span class="stat-number" style="color: var(--available)">
+                {{ hotel.rooms|selectattr('current_status', 'equalto',
+                'available')|list|length }}
+              </span>
+              <span class="stat-label">Trống</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" style="color: var(--reserved)">
+                {{ hotel.rooms|selectattr('current_status', 'equalto',
+                'reserved')|list|length }}
+              </span>
+              <span class="stat-label">Đã đặt</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" style="color: var(--occupied)">
+                {{ hotel.rooms|selectattr('current_status', 'equalto',
+                'occupied')|list|length }}
+              </span>
+              <span class="stat-label">Đang ở</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{ hotel.rooms|length }}</span>
+              <span class="stat-label">Tổng</span>
+            </div>
+          </div>
+        </div>
+
+        {% set rooms_by_floor = hotel.rooms|groupby('floor') %} {% for floor,
+        floor_rooms in rooms_by_floor %}
+        <div class="floor-section">
+          <div class="floor-title">
+            <i class="fas fa-layer-group"></i> Tầng {{ floor if floor else 'G'
+            }}
+          </div>
+          <div class="rooms-grid">
+            {% for room in floor_rooms|sort(attribute='room_number') %}
+            <div
+              class="room-card {{ room.current_status }}"
+              data-room-id="{{ room.id }}"
+              data-status="{{ room.current_status }}"
+              onclick="showRoomDetail({{ room.id }})"
+            >
+              <div class="room-number">{{ room.room_number }}</div>
+              <div class="room-type">{{ room.room_type }}</div>
+              <span class="room-status {{ room.current_status }}">
+                {% if room.current_status == 'available' %}
+                <i class="fas fa-check-circle"></i> Trống {% elif
+                room.current_status == 'reserved' %}
+                <i class="fas fa-calendar-check"></i> Đã đặt {% elif
+                room.current_status == 'occupied' %}
+                <i class="fas fa-user"></i> Đang ở {% else %}
+                <i class="fas fa-tools"></i> Bảo trì {% endif %}
+              </span>
+              {% if room.current_booking %}
+              <div class="date-indicator">
+                <i class="fas fa-clock"></i>
+                {{ room.current_booking.check_in.strftime('%d/%m') }} - {{
+                room.current_booking.check_out.strftime('%d/%m') }}
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %} {% if not hotels %}
+      <div class="text-center py-5">
+        <i class="fas fa-hotel" style="font-size: 80px; color: #ddd"></i>
+        <h3 class="mt-3">Chưa có khách sạn nào</h3>
+        <p class="text-muted">Thêm khách sạn để bắt đầu quản lý phòng</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Room Detail Modal -->
+    <div class="modal fade" id="roomModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="roomModalTitle">
+              <i class="fas fa-door-open"></i> Chi Tiết Phòng
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="roomModalBody">
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Filter functionality
+      const locationFilter = document.getElementById("locationFilter");
+      const hotelFilter = document.getElementById("hotelFilter");
+      const statusFilter = document.getElementById("statusFilter");
+      const checkDate = document.getElementById("checkDate");
+
+      locationFilter.addEventListener("change", function () {
+        const locationId = this.value;
+
+        // Filter hotel options
+        const hotelOptions = hotelFilter.querySelectorAll("option");
+        hotelOptions.forEach((option) => {
+          if (option.value === "") return;
+          if (!locationId || option.dataset.location === locationId) {
+            option.style.display = "block";
+          } else {
+            option.style.display = "none";
+          }
+        });
+        hotelFilter.value = "";
+
+        // Filter hotel sections
+        filterHotels();
+      });
+
+      hotelFilter.addEventListener("change", filterHotels);
+      statusFilter.addEventListener("change", filterRooms);
+      checkDate.addEventListener("change", function () {
+        location.href = `{{ url_for('admin_room_map') }}?date=${this.value}`;
+      });
+
+      function filterHotels() {
+        const locationId = locationFilter.value;
+        const hotelId = hotelFilter.value;
+
+        document.querySelectorAll(".hotel-section").forEach((section) => {
+          const sectionLocation = section.dataset.locationId;
+          const sectionHotel = section.dataset.hotelId;
+
+          let show = true;
+          if (locationId && sectionLocation !== locationId) show = false;
+          if (hotelId && sectionHotel !== hotelId) show = false;
+
+          section.style.display = show ? "block" : "none";
+        });
+
+        filterRooms();
+      }
+
+      function filterRooms() {
+        const status = statusFilter.value;
+
+        document.querySelectorAll(".room-card").forEach((card) => {
+          const cardStatus = card.dataset.status;
+
+          if (!status || cardStatus === status) {
+            card.style.display = "block";
+          } else {
+            card.style.display = "none";
+          }
+        });
+      }
+
+      // Show room detail
+      function showRoomDetail(roomId) {
+        const modal = new bootstrap.Modal(document.getElementById("roomModal"));
+        modal.show();
+
+        fetch(`/admin/room/${roomId}/detail`)
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("roomModalBody").innerHTML =
+              generateRoomDetailHTML(data);
+          })
+          .catch((error) => {
+            document.getElementById("roomModalBody").innerHTML =
+              '<div class="alert alert-danger">Không thể tải thông tin phòng</div>';
+          });
+      }
+
+      function generateRoomDetailHTML(room) {
+        let html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-info-circle"></i> Thông Tin Phòng</h5>
+                        <div class="info-row">
+                            <strong>Số phòng:</strong>
+                            <span>${room.room_number}</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>Loại phòng:</strong>
+                            <span>${room.room_type}</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>Giá:</strong>
+                            <span>${room.price.toLocaleString(
+                              "vi-VN"
+                            )}đ/đêm</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>Tối đa:</strong>
+                            <span>${room.max_people} người</span>
+                        </div>
+                        <div class="info-row">
+                            <strong>Trạng thái:</strong>
+                            <span class="room-status ${room.current_status}">
+                                ${getStatusText(room.current_status)}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        ${
+                          room.current_booking
+                            ? `
+                            <h5><i class="fas fa-calendar"></i> Đặt Phòng Hiện Tại</h5>
+                            <div class="info-row">
+                                <strong>Mã ĐP:</strong>
+                                <span>#${room.current_booking.id}</span>
+                            </div>
+                            <div class="info-row">
+                                <strong>Khách hàng:</strong>
+                                <span>${room.current_booking.guest_name}</span>
+                            </div>
+                            <div class="info-row">
+                                <strong>Check-in:</strong>
+                                <span>${formatDate(
+                                  room.current_booking.check_in
+                                )}</span>
+                            </div>
+                            <div class="info-row">
+                                <strong>Check-out:</strong>
+                                <span>${formatDate(
+                                  room.current_booking.check_out
+                                )}</span>
+                            </div>
+                            <div class="info-row">
+                                <strong>Tổng tiền:</strong>
+                                <span style="color: var(--primary); font-weight: 700;">
+                                    ${room.current_booking.total_price.toLocaleString(
+                                      "vi-VN"
+                                    )}đ
+                                </span>
+                            </div>
+                            <div class="quick-actions">
+                                <a href="/admin/bookings/${
+                                  room.current_booking.id
+                                }" class="btn btn-primary btn-action">
+                                    <i class="fas fa-eye"></i> Xem ĐP
+                                </a>
+                                <button class="btn btn-success btn-action" onclick="checkIn(${
+                                  room.current_booking.id
+                                })">
+                                    <i class="fas fa-sign-in-alt"></i> Check-in
+                                </button>
+                            </div>
+                        `
+                            : `
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Phòng đang trống
+                            </div>
+                        `
+                        }
+                    </div>
+                </div>
+
+                ${
+                  room.upcoming_bookings && room.upcoming_bookings.length > 0
+                    ? `
+                    <div class="booking-timeline">
+                        <h5><i class="fas fa-clock"></i> Đặt Phòng Sắp Tới</h5>
+                        ${room.upcoming_bookings
+                          .map(
+                            (booking) => `
+                            <div class="timeline-item">
+                                <strong>#${booking.id}</strong> - ${
+                              booking.guest_name
+                            }<br>
+                                <small>${formatDate(
+                                  booking.check_in
+                                )} → ${formatDate(booking.check_out)}</small>
+                            </div>
+                        `
+                          )
+                          .join("")}
+                    </div>
+                `
+                    : ""
+                }
+            `;
+
+        return html;
+      }
+
+      function getStatusText(status) {
+        const texts = {
+          available: '<i class="fas fa-check-circle"></i> Trống',
+          reserved: '<i class="fas fa-calendar-check"></i> Đã đặt',
+          occupied: '<i class="fas fa-user"></i> Đang ở',
+          maintenance: '<i class="fas fa-tools"></i> Bảo trì',
+        };
+        return texts[status] || status;
+      }
+
+      function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString("vi-VN");
+      }
+
+      function checkIn(bookingId) {
+        if (confirm("Xác nhận check-in cho đặt phòng này?")) {
+          // TODO: Implement check-in logic
+          alert("Chức năng check-in sẽ được triển khai");
+        }
+      }
+    </script>
+  </body>
+</html>

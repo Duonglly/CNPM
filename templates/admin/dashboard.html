@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Trị Viên - Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+      :root {
+        --primary: #c8102e;
+        --primary-dark: #a00d26;
+        --secondary-bg: #f5f7fa;
+      }
+
+      body {
+        background: var(--secondary-bg);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .admin-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Stats Cards */
+      .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-left: 5px solid;
+        height: 100%;
+      }
+
+      .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .stats-card .icon-circle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+      }
+
+      .stat-title {
+        color: #6c757d;
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      /* Dashboard Cards */
+      .dashboard-card {
+        display: block;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        text-decoration: none;
+        color: #333;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        border: 2px solid transparent;
+      }
+
+      .dashboard-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+        color: #333;
+      }
+
+      .card-image-bg {
+        height: 120px;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 48px;
+        position: relative;
+      }
+
+      .card-image-bg i {
+        position: relative;
+        z-index: 2;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      }
+
+      .card-body {
+        padding: 25px 20px;
+      }
+
+      .card-body h5 {
+        margin: 0 0 10px 0;
+        font-weight: 700;
+        color: #2c3e50;
+        font-size: 1.1rem;
+      }
+
+      .card-body p {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      /* Specific Card Colors */
+      .card-voucher {
+        border-color: #c8102e;
+      }
+      .card-voucher .card-image-bg {
+        background: linear-gradient(135deg, #c8102e, #a00d26);
+      }
+
+      .card-locations {
+        border-color: #8b5cf6;
+      }
+      .card-locations .card-image-bg {
+        background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      }
+
+      .card-room-map {
+        border-color: #3b82f6;
+      }
+      .card-room-map .card-image-bg {
+        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      }
+
+      .card-reviews {
+        border-color: #f59e0b;
+      }
+      .card-reviews .card-image-bg {
+        background: linear-gradient(135deg, #92400e, #f59e0b);
+      }
+
+      .card-revenue {
+        border-color: #10b981;
+      }
+      .card-revenue .card-image-bg {
+        background: linear-gradient(135deg, #065f46, #10b981);
+      }
+
+      .card-bookings {
+        border-color: #06b6d4;
+      }
+      .card-bookings .card-image-bg {
+        background: linear-gradient(135deg, #0e7490, #06b6d4);
+      }
+
+      /* Chart Card */
+      .chart-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        height: 100%;
+      }
+
+      .chart-card .card-header {
+        background: transparent !important;
+        border: none;
+        padding: 0 0 20px 0;
+      }
+
+      .chart-card .card-title {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="container">
+        <h1 class="display-4 fw-bold">
+          <i class="fas fa-tachometer-alt me-3"></i>Dashboard Quản Trị Viên
+        </h1>
+        <p class="lead mb-0">
+          Chào mừng, <strong>{{ session.get('full_name', 'Admin') }}</strong>.
+          Giám sát hoạt động hệ thống.
+        </p>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container pb-5">
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="row mb-4">
+        <div class="col-12">
+          {% for category, message in messages %}
+          <div
+            class="alert alert-{{ category }} alert-dismissible fade show"
+            role="alert"
+          >
+            {{ message }}
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+            ></button>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %} {% endwith %}
+
+      <!-- Thống kê Tóm tắt -->
+      <h2 class="h4 mb-4" style="color: var(--primary)">
+        <i class="fas fa-chart-line me-2"></i>Tóm tắt Hoạt động
+      </h2>
+      <div class="row g-4 mb-5">
+        <div class="col-md-3">
+          <div class="stats-card" style="border-left-color: #10b981">
+            <div class="d-flex align-items-center">
+              <div class="icon-circle me-3" style="background: #10b981">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <div>
+                <div class="stat-title">Tổng Doanh Thu</div>
+                <div class="stat-value" style="color: #10b981">
+                  {{ "{:,.0f}".format(total_revenue) }}đ
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="stats-card" style="border-left-color: #3b82f6">
+            <div class="d-flex align-items-center">
+              <div class="icon-circle me-3" style="background: #3b82f6">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div>
+                <div class="stat-title">Tổng Đặt Phòng</div>
+                <div class="stat-value" style="color: #3b82f6">
+                  {{ total_bookings }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="stats-card" style="border-left-color: #f59e0b">
+            <div class="d-flex align-items-center">
+              <div class="icon-circle me-3" style="background: #f59e0b">
+                <i class="fas fa-users"></i>
+              </div>
+              <div>
+                <div class="stat-title">Người Dùng</div>
+                <div class="stat-value" style="color: #f59e0b">
+                  {{ total_users }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="stats-card" style="border-left-color: #06b6d4">
+            <div class="d-flex align-items-center">
+              <div class="icon-circle me-3" style="background: #06b6d4">
+                <i class="fas fa-bed"></i>
+              </div>
+              <div>
+                <div class="stat-title">Tổng Số Phòng</div>
+                <div class="stat-value" style="color: #06b6d4">
+                  {{ total_rooms }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Biểu đồ Doanh thu -->
+      <div class="row mb-5">
+        <div class="col-12">
+          <div class="chart-card">
+            <div class="card-header">
+              <h5 class="card-title">
+                <i class="fas fa-chart-area me-2"></i>Phân tích Doanh thu 6
+                tháng gần nhất
+              </h5>
+            </div>
+            <div class="card-body p-0">
+              <canvas id="revenueChart" style="max-height: 350px"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu quản lý -->
+      <h2 class="h4 mb-4" style="color: var(--primary)">
+        <i class="fas fa-cogs me-2"></i>Quản lý Hệ thống
+      </h2>
+      <div class="row g-4 mb-5">
+        <!-- Voucher / Khuyến mãi -->
+        <div class="col-md-4">
+          <a
+            href="{{ url_for('admin_promotions') }}"
+            class="dashboard-card card-voucher"
+          >
+            <div class="card-image-bg">
+              <i class="fas fa-tags"></i>
+            </div>
+            <div class="card-body text-center">
+              <h5>Quản lý Voucher</h5>
+              <p>Tạo, chỉnh sửa & theo dõi mã khuyến mãi</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Địa Điểm -->
+        <div class="col-md-4">
+          <a
+            href="{{ url_for('admin_locations') }}"
+            class="dashboard-card card-locations"
+          >
+            <div class="card-image-bg">
+              <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <div class="card-body text-center">
+              <h5>Quản lý Địa Điểm</h5>
+              <p>Quản lý các địa điểm có khách sạn</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Sơ Đồ Phòng -->
+        <div class="col-md-4">
+          <a
+            href="{{ url_for('admin_room_map') }}"
+            class="dashboard-card card-room-map"
+          >
+            <div class="card-image-bg">
+              <i class="fas fa-th"></i>
+            </div>
+            <div class="card-body text-center">
+              <h5>Sơ Đồ Phòng</h5>
+              <p>Giám sát trạng thái phòng & Check-in/out</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Đánh Giá -->
+        <div class="col-md-4">
+          <a
+            href="{{ url_for('admin_reviews') }}"
+            class="dashboard-card card-reviews"
+          >
+            <div class="card-image-bg">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="card-body text-center">
+              <h5>Đánh Giá Khách Hàng</h5>
+              <p>
+                <strong>{{ pending_reviews }}</strong> đánh giá mới chờ duyệt
+              </p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Doanh Thu -->
+        <div class="col-md-4">
+          <a
+            href="{{ url_for('admin_revenue') }}"
+            class="dashboard-card card-revenue"
+          >
+            <div class="card-image-bg">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="card-body text-center">
+              <h5>Báo Cáo Doanh Thu</h5>
+              <p>Phân tích hiệu suất và lợi nhuận</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Đặt Phòng -->
+        <div class="col-md-4">
+          <a
+            href="{{ url_for('admin_bookings') }}"
+            class="dashboard-card card-bookings"
+          >
+            <div class="card-image-bg">
+              <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="card-body text-center">
+              <h5>Quản lý Đặt Phòng</h5>
+              <p>Xem và quản lý các đơn đặt phòng</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-muted border-top bg-white">
+      <div class="container">
+        <p class="mb-0">
+          <i class="fas fa-hotel me-2"></i>&copy; 2025 Khách Sạn Mường Thanh.
+          Admin Panel.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Dữ liệu từ Flask
+      const chartLabels = {{ chart_labels | tojson }};
+      const chartData = {{ chart_data | tojson }};
+
+      // Khởi tạo biểu đồ Doanh thu
+      const ctx = document.getElementById("revenueChart").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            label: "Doanh thu (VND)",
+            data: chartData,
+            backgroundColor: "rgba(200, 16, 46, 0.1)",
+            borderColor: "#c8102e",
+            borderWidth: 3,
+            pointBackgroundColor: "#c8102e",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: true,
+            tension: 0.4,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              padding: 12,
+              titleFont: { size: 14, weight: "bold" },
+              bodyFont: { size: 13 },
+              callbacks: {
+                label: function (context) {
+                  return "Doanh thu: " + context.parsed.y.toLocaleString("vi-VN") + " đ";
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: "rgba(0, 0, 0, 0.05)",
+              },
+              ticks: {
+                callback: function (value) {
+                  return value.toLocaleString("vi-VN") + " đ";
+                },
+              },
+            },
+            x: {
+              grid: {
+                display: false,
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Xác nhận đặt phòng - #{{ booking.id }}</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      body {
+        background: #f5f7fa;
+      }
+      .confirmation-card {
+        max-width: 650px;
+        margin: 50px auto;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+        overflow: hidden; /* Cần để bo góc header */
+      }
+      /* --- Dynamic Header Styles --- */
+      .header-success {
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+        color: white;
+        padding: 30px;
+      }
+      .header-warning {
+        background: linear-gradient(135deg, #ffc107, #d39e00);
+        color: #343a40; /* Màu chữ tối hơn cho nền sáng */
+        padding: 30px;
+      }
+      .header-danger,
+      .header-default {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        padding: 30px;
+      }
+      /* --- End Dynamic Header Styles --- */
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px dashed #eee;
+      }
+      .info-row:last-of-type {
+        border-bottom: none;
+      }
+      .info-label {
+        color: #6c757d;
+        font-weight: 500;
+      }
+      .qr-section {
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 10px;
+        background: #fff;
+      }
+      .qr-code {
+        max-width: 200px;
+        margin: 10px auto;
+        border: 4px solid #f8f9fa;
+      }
+    </style>
+  </head>
+  <body>
+    {% set status = booking.payment_status %} {% set header_class = { 'paid':
+    'header-success', 'pending': 'header-warning' }.get(status, 'header-danger')
+    %}
+
+    <div class="confirmation-card card">
+      <div class="{{ header_class }} text-center">
+        {% if status == 'paid' %}
+        <i class="fas fa-check-circle fa-3x mb-3"></i>
+        <h2 class="mb-1">Đặt phòng đã xác nhận!</h2>
+        <p class="lead">Thanh toán đã hoàn tất thành công.</p>
+        {% elif status == 'pending' %}
+        <i class="fas fa-hourglass-half fa-3x mb-3"></i>
+        <h2 class="mb-1">Đặt phòng đang chờ xác nhận!</h2>
+        <p class="lead">
+          Chúng tôi đang kiểm tra giao dịch chuyển khoản của bạn.
+        </p>
+        {% else %}
+        <i class="fas fa-times-circle fa-3x mb-3"></i>
+        <h2 class="mb-1">Đặt phòng chưa thanh toán!</h2>
+        <p class="lead">Vui lòng thanh toán để hoàn tất đơn hàng.</p>
+        {% endif %}
+      </div>
+
+      <div class="card-body p-4">
+        <h4 class="mb-3 text-primary">
+          <i class="fas fa-bookmark"></i> Thông tin đặt phòng
+        </h4>
+
+        <div class="info-row">
+          <span class="info-label">Mã đặt phòng:</span>
+          <strong>#{{ booking.id }}</strong>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Phòng:</span>
+          <strong
+            >{{ booking.room.room_type }} - {{ booking.room.room_number
+            }}</strong
+          >
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Check-in:</span>
+          <strong
+            ><i class="fas fa-calendar-alt"></i> {{
+            booking.check_in.strftime('%d/%m/%Y') }}</strong
+          >
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Check-out:</span>
+          <strong
+            ><i class="fas fa-calendar-alt"></i> {{
+            booking.check_out.strftime('%d/%m/%Y') }}</strong
+          >
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Tổng tiền:</span>
+          <strong class="text-danger"
+            >{{ "{:,.0f}".format(booking.total_price) }}đ</strong
+          >
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Trạng thái thanh toán:</span>
+          {% if booking.payment_status == 'paid' %}
+          <strong class="text-success"
+            ><i class="fas fa-credit-card"></i> Đã thanh toán ({{
+            booking.payment_method | upper }})</strong
+          >
+          {% elif booking.payment_status == 'pending' %}
+          <strong class="text-warning"
+            ><i class="fas fa-hourglass-half"></i> Chờ xác nhận (Chuyển
+            khoản)</strong
+          >
+          {% else %}
+          <strong class="text-danger">Chưa thanh toán</strong>
+          {% endif %}
+        </div>
+
+        {% if qr_b64 %}
+        <hr class="my-4" />
+        <div class="qr-section text-center">
+          <h5 class="mb-3">
+            <i class="fas fa-qrcode"></i> Mã xác nhận khi Check-in
+          </h5>
+          <div class="qr-code">
+            <img
+              src="data:image/png;base64,{{ qr_b64 }}"
+              alt="QR mã đặt phòng"
+              class="img-fluid"
+            />
+          </div>
+          <p class="text-center text-muted mt-3">
+            Vui lòng lưu lại mã này hoặc chụp màn hình để xác nhận đặt phòng tại
+            quầy.
+          </p>
+        </div>
+        {% endif %} {% if booking.payment_status != 'paid' and
+        booking.payment_status != 'pending' %}
+        <div class="d-grid mt-4">
+          <a
+            href="{{ url_for('payment', booking_id=booking.id) }}"
+            class="btn btn-danger btn-lg"
+          >
+            <i class="fas fa-credit-card"></i> Thanh toán ngay
+          </a>
+        </div>
+        {% endif %}
+
+        <hr class="my-4" />
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <a
+            href="{{ url_for('room_detail', room_id=booking.room_id) }}"
+            class="btn btn-outline-secondary"
+          >
+            <i class="fas fa-eye"></i> Chi tiết phòng
+          </a>
+          {% if booking.user_id %}
+          <a href="{{ url_for('my_bookings') }}" class="btn btn-primary">
+            <i class="fas fa-list-alt"></i> Xem đơn của tôi
+          </a>
+          {% else %}
+          <a href="{{ url_for('index') }}" class="btn btn-primary">
+            <i class="fas fa-home"></i> Về trang chủ
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tìm Kiếm Phòng Khách Sạn</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #c8102e; /* Màu chủ đạo Mường Thanh */
+        --primary-dark: #a00d26;
+        --secondary: #f5f7fa;
+      }
+      body {
+        background: var(--secondary);
+        font-family: Arial, "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .hero-search {
+        background: var(--primary);
+        padding: 50px 0;
+        margin-bottom: 30px;
+        color: white;
+      }
+      .search-form-card {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      .search-form-card .btn-primary {
+        background-color: var(--primary);
+        border-color: var(--primary);
+      }
+      .room-card {
+        transition: transform 0.2s;
+        border: 1px solid #e0e0e0;
+      }
+      .room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      }
+      .room-price {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero-search">
+      <div class="container">
+        <h1 class="mb-0">
+          <i class="fas fa-search me-2"></i>Tìm Kiếm Phòng Khách Sạn
+        </h1>
+        <p class="lead">Chọn địa điểm và thời gian lưu trú của bạn.</p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="search-form-card mb-5">
+        <form action="{{ url_for('search') }}" method="GET" class="row g-3">
+          <div class="col-md-3">
+            <label for="location" class="form-label fw-bold">Địa điểm</label>
+            <select id="location" name="location" class="form-select" required>
+              <option value="">Chọn địa điểm...</option>
+              {% for loc in locations %}
+              <option
+                value="{{ loc.id }}"
+                {% if request.args.get('location')|int == loc.id %}selected{% endif %}
+              >
+                {{ loc.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label for="checkin" class="form-label fw-bold">Ngày nhận phòng</label>
+            <input
+              type="date"
+              class="form-control"
+              id="checkin"
+              name="checkin"
+              value="{{ request.args.get('checkin') }}"
+              required
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label for="checkout" class="form-label fw-bold">Ngày trả phòng</label>
+            <input
+              type="date"
+              class="form-control"
+              id="checkout"
+              name="checkout"
+              value="{{ request.args.get('checkout') }}"
+              required
+            />
+          </div>
+
+          <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100 py-2">
+              <i class="fas fa-search me-1"></i> Tìm kiếm
+            </button>
+          </div>
+        </form>
+      </div>
+      {% if rooms is defined %}
+        <h2 class="mb-4 text-secondary">
+          Kết quả tìm kiếm ({% if rooms %}{{ rooms|length }}{% else %}0{% endif %} phòng)
+        </h2>
+        {% if rooms %}
+          <div class="row">
+            {% for room in rooms %}
+              <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card room-card h-100">
+                  {% if room.image_url %}
+                    <img src="{{ room.image_url }}" class="card-img-top" alt="Hình ảnh phòng" style="height: 200px; object-fit: cover;">
+                  {% endif %}
+                  
+                  <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-primary">{{ room.room_type }}</h5>
+                    <p class="card-text text-muted">
+                        <i class="fas fa-hotel me-1"></i> 
+                        {{ room.hotel_name if room.hotel_name is defined else 'Khách sạn' }}
+                    </p>
+                    <p class="card-text">
+                        {{ room.description[:100] if room.description else 'Phòng nghỉ tiện nghi, hiện đại.' }}...
+                    </p>
+                    
+                    <div class="mt-auto d-flex justify-content-between align-items-center pt-3">
+                        <span class="room-price">
+                            {{ room.price | format_currency }}/đêm
+                        </span>
+                        
+                        <a 
+                            href="{{ url_for('room_detail', room_id=room.id) }}" 
+                            class="btn btn-sm btn-outline-primary"
+                        >
+                            Xem chi tiết <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-warning text-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>Rất tiếc, không tìm thấy phòng trống nào phù hợp với yêu cầu của bạn.
+            <p class="mt-2 mb-0">Vui lòng thay đổi ngày hoặc địa điểm tìm kiếm.</p>
+          </div>
+        {% endif %}
+      {% endif %}
+      </div>
+
+    <footer class="text-center py-4 mt-5 bg-white border-top">
+      <div class="container">
+        <p class="mb-0 text-muted">
+          &copy; {{ now.year if now is defined else '2025' }} Hotel Booking. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Logic JS để đặt ngày tối thiểu cho Check-in (Hôm nay) và Check-out (Ngày sau Check-in)
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkinInput = document.getElementById('checkin');
+            const checkoutInput = document.getElementById('checkout');
+            const today = new Date().toISOString().split('T')[0];
+            
+            // 1. Set min date cho Check-in
+            checkinInput.min = today;
+            
+            // 2. Set min date cho Check-out (luôn là ngày sau Check-in)
+            function updateMinCheckout() {
+                if (checkinInput.value) {
+                    const checkinDate = new Date(checkinInput.value);
+                    checkinDate.setDate(checkinDate.getDate() + 1);
+                    const minCheckout = checkinDate.toISOString().split('T')[0];
+                    checkoutInput.min = minCheckout;
+                    
+                    // Nếu ngày checkout hiện tại nhỏ hơn ngày tối thiểu, set lại
+                    if (checkoutInput.value < minCheckout) {
+                        checkoutInput.value = minCheckout;
+                    }
+                }
+            }
+            
+            checkinInput.addEventListener('change', updateMinCheckout);
+            
+            // Khởi chạy lần đầu để set min date cho checkout nếu checkin đã có giá trị
+            updateMinCheckout(); 
+            
+            // Đặt giá trị mặc định cho check-in/out nếu chưa có giá trị
+            if (!checkinInput.value) checkinInput.value = today;
+            if (!checkoutInput.value) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                checkoutInput.value = tomorrow.toISOString().split('T')[0];
+            }
+        });
+    </script>
+  </body>
+</html>

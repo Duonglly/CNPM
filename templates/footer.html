@@ -1,0 +1,129 @@
+<style>
+  /* Custom styling cho footer nếu không dùng Bootstrap trực tiếp */
+  .custom-footer {
+    background-color: #212529; /* Màu nền tối */
+    color: #f8f9fa; /* Màu chữ sáng */
+    padding: 40px 0 20px 0;
+    font-size: 0.95rem;
+  }
+  .footer-section h5 {
+    color: #fff;
+    border-bottom: 2px solid #c8102e; /* Màu đỏ Mường Thanh */
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+  .custom-footer a {
+    color: #adb5bd;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .custom-footer a:hover {
+    color: #c8102e; /* Hiệu ứng hover màu đỏ */
+  }
+  .footer-list {
+    padding-left: 0;
+    list-style: none;
+  }
+  .footer-list li {
+    margin-bottom: 8px;
+  }
+  .footer-bottom {
+    border-top: 1px solid #343a40;
+    padding-top: 20px;
+    margin-top: 30px;
+  }
+</style>
+
+<footer class="custom-footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 footer-section mb-4">
+        <h5>Mường Thanh Hospitality</h5>
+        <p>
+          Khách sạn Mường Thanh là chuỗi khách sạn tư nhân lớn nhất Việt Nam,
+          mang đến trải nghiệm lưu trú đẳng cấp với sự kết hợp hài hòa giữa văn
+          hóa Việt và tiện nghi hiện đại.
+        </p>
+        <div class="d-flex gap-3">
+          <a href="#" title="Facebook"
+            ><i class="fab fa-facebook-square fa-2x"></i
+          ></a>
+          <a href="#" title="Instagram"
+            ><i class="fab fa-instagram-square fa-2x"></i
+          ></a>
+          <a href="#" title="YouTube"
+            ><i class="fab fa-youtube-square fa-2x"></i
+          ></a>
+        </div>
+      </div>
+
+      <div class="col-md-2 footer-section mb-4">
+        <h5>Hỗ Trợ Khách Hàng</h5>
+        <ul class="footer-list">
+          <li>
+            <a href="{{ url_for('index') }}#search-booking"
+              ><i class="fas fa-search me-2"></i>Tìm kiếm đặt phòng</a
+            >
+          </li>
+          <li>
+            <a href="#"
+              ><i class="fas fa-question-circle me-2"></i>Câu hỏi thường gặp</a
+            >
+          </li>
+          <li>
+            <a href="#"
+              ><i class="fas fa-shield-alt me-2"></i>Chính sách bảo mật</a
+            >
+          </li>
+          <li>
+            <a href="#"
+              ><i class="fas fa-file-contract me-2"></i>Điều khoản sử dụng</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 footer-section mb-4">
+        <h5>Liên Hệ</h5>
+        <ul class="footer-list">
+          <li><i class="fas fa-phone-alt me-2"></i>Hotline: 1900 1177</li>
+          <li><i class="fas fa-envelope me-2"></i>Email: info@muongthanh.vn</li>
+          <li>
+            <i class="fas fa-map-marker-alt me-2"></i>Địa chỉ: Hà Nội, Việt Nam
+          </li>
+          <li><i class="fas fa-clock me-2"></i>Hỗ trợ 24/7</li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 footer-section mb-4">
+        <h5>Thanh Toán & Ứng dụng</h5>
+        <p>Chấp nhận các hình thức thanh toán:</p>
+        <div class="mb-3">
+          <i class="fab fa-cc-visa fa-2x me-2" title="Visa"></i>
+          <i class="fab fa-cc-mastercard fa-2x me-2" title="Mastercard"></i>
+          <i class="fas fa-qrcode fa-2x me-2" title="VNPay, Momo, ZaloPay"></i>
+        </div>
+        <p>Tải ứng dụng đặt phòng:</p>
+        <div>
+          <img
+            src="https://via.placeholder.com/100x30?text=App+Store"
+            alt="App Store"
+            class="img-fluid me-2"
+            style="max-width: 100px"
+          />
+          <img
+            src="https://via.placeholder.com/100x30?text=Google+Play"
+            alt="Google Play"
+            class="img-fluid"
+            style="max-width: 100px"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom text-center">
+      <p class="mb-0">© 2025 Khách Sạn Mường Thanh. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

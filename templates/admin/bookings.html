@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý đặt phòng - Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      .badge-pending {
+        background-color: #ffc107;
+      }
+      .badge-paid {
+        background-color: #28a745;
+      }
+      .badge-unpaid {
+        background-color: #dc3545;
+      }
+      .badge-failed {
+        background-color: #6c757d;
+      }
+      .table-actions {
+        white-space: nowrap;
+      }
+      .highlight-pending {
+        background-color: #fff3cd;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('admin_dashboard') }}">
+          <i class="fas fa-hotel"></i> Admin Panel
+        </a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="{{ url_for('admin_dashboard') }}"
+            >Dashboard</a
+          >
+          <a class="nav-link active" href="{{ url_for('admin_bookings') }}"
+            >Đặt phòng</a
+          >
+          <a class="nav-link" href="{{ url_for('logout') }}">Đăng xuất</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container py-5">
+      <h2 class="mb-4">
+        <i class="fas fa-calendar-check"></i> Quản lý đặt phòng
+      </h2>
+
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <strong>Lưu ý:</strong> Các đặt phòng thanh toán bằng chuyển khoản ngân
+        hàng cần được xác nhận thủ công.
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th>ID</th>
+                  <th>Khách hàng</th>
+                  <th>Phòng</th>
+                  <th>Check-in</th>
+                  <th>Check-out</th>
+                  <th>Tổng tiền</th>
+                  <th>PT Thanh toán</th>
+                  <th>TT Thanh toán</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for booking in bookings %}
+                <tr
+                  class="{% if booking.payment_status == 'pending' %}highlight-pending{% endif %}"
+                >
+                  <td><strong>#{{ booking.id }}</strong></td>
+                  <td>
+                    {{ booking.guest_name }}<br />
+                    <small class="text-muted">{{ booking.guest_phone }}</small>
+                  </td>
+                  <td>
+                    {{ booking.room.room_type if booking.room else 'N/A' }}<br />
+                    <small class="text-muted"
+                      >Phòng {{ booking.room.room_number if booking.room else
+                      'N/A' }}</small
+                    >
+                  </td>
+                  <td>{{ booking.check_in.strftime('%d/%m/%Y') }}</td>
+                  <td>{{ booking.check_out.strftime('%d/%m/%Y') }}</td>
+                  <td>
+                    <strong
+                      >{{ "{:,.0f}".format(booking.total_price) }}đ</strong
+                    >
+                  </td>
+                  <td>
+                    {% if booking.payment_method == 'momo' %}
+                    <span class="badge bg-purple"
+                      ><i class="fas fa-mobile-alt"></i> MoMo</span
+                    >
+                    {% elif booking.payment_method == 'vnpay' %}
+                    <span class="badge bg-primary"
+                      ><i class="fas fa-credit-card"></i> VNPay</span
+                    >
+                    {% elif booking.payment_method == 'zalopay' %}
+                    <span class="badge bg-info"
+                      ><i class="fab fa-alipay"></i> ZaloPay</span
+                    >
+                    {% elif booking.payment_method == 'banking' %}
+                    <span class="badge bg-warning text-dark"
+                      ><i class="fas fa-university"></i> Chuyển khoản</span
+                    >
+                    {% else %}
+                    <span class="badge bg-secondary">Chưa chọn</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if booking.payment_status == 'paid' %}
+                    <span class="badge badge-paid"
+                      ><i class="fas fa-check-circle"></i> Đã thanh toán</span
+                    >
+                    {% elif booking.payment_status == 'pending' %}
+                    <span class="badge badge-pending"
+                      ><i class="fas fa-clock"></i> Chờ xác nhận</span
+                    >
+                    {% elif booking.payment_status == 'failed' %}
+                    <span class="badge badge-failed"
+                      ><i class="fas fa-times-circle"></i> Thất bại</span
+                    >
+                    {% else %}
+                    <span class="badge badge-unpaid"
+                      ><i class="fas fa-exclamation-circle"></i> Chưa thanh
+                      toán</span
+                    >
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if booking.status == 'confirmed' %}
+                    <span class="badge bg-success">Đã xác nhận</span>
+                    {% elif booking.status == 'cancelled' %}
+                    <span class="badge bg-danger">Đã hủy</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                    {% endif %}
+                  </td>
+                  <td class="table-actions">
+                    {% if booking.payment_status == 'pending' and
+                    booking.payment_method == 'banking' %}
+                    <form
+                      method="POST"
+                      action="{{ url_for('admin_confirm_payment', booking_id=booking.id) }}"
+                      style="display: inline"
+                    >
+                      <button
+                        type="submit"
+                        class="btn btn-sm btn-success"
+                        onclick="return confirm('Xác nhận đã nhận được chuyển khoản?')"
+                      >
+                        <i class="fas fa-check"></i> Xác nhận
+                      </button>
+                    </form>
+                    <form
+                      method="POST"
+                      action="{{ url_for('admin_reject_payment', booking_id=booking.id) }}"
+                      style="display: inline"
+                    >
+                      <button
+                        type="submit"
+                        class="btn btn-sm btn-danger"
+                        onclick="return confirm('Từ chối thanh toán này?')"
+                      >
+                        <i class="fas fa-times"></i> Từ chối
+                      </button>
+                    </form>
+                    {% else %}
+                    <a
+                      href="{{ url_for('booking_confirm', booking_id=booking.id) }}"
+                      class="btn btn-sm btn-info"
+                      target="_blank"
+                    >
+                      <i class="fas fa-eye"></i> Xem
+                    </a>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          {% if not bookings %}
+          <div class="alert alert-secondary text-center">
+            <i class="fas fa-inbox"></i> Chưa có đặt phòng nào
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

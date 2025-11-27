@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Khuyến Mãi - Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #c8102e;
+      }
+
+      body {
+        background: #f5f7fa;
+      }
+
+      .admin-header {
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+        padding: 20px 0;
+        margin-bottom: 30px;
+      }
+
+      .promo-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+      }
+
+      .promo-card h3 {
+        color: var(--primary);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .btn-add {
+        background: var(--primary);
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-add:hover {
+        background: #a00d26;
+        transform: translateY(-2px);
+      }
+
+      .promo-table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .promo-table table {
+        margin: 0;
+      }
+
+      .promo-table thead {
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+      }
+
+      .promo-table thead th {
+        border: none;
+        padding: 15px;
+        font-weight: 600;
+      }
+
+      .promo-table tbody tr:hover {
+        background: #f8f9fa;
+      }
+
+      .badge-active {
+        background: #28a745;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+      }
+
+      .badge-inactive {
+        background: #6c757d;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+      }
+
+      .badge-expired {
+        background: #dc3545;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+      }
+
+      .promo-code {
+        font-family: "Courier New", monospace;
+        background: #f0f0f0;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .btn-action {
+        padding: 6px 12px;
+        margin: 0 3px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 13px;
+      }
+
+      .btn-edit {
+        background: #007bff;
+        color: white;
+      }
+
+      .btn-edit:hover {
+        background: #0056b3;
+      }
+
+      .btn-delete {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-delete:hover {
+        background: #c82333;
+      }
+
+      .btn-toggle {
+        background: #ffc107;
+        color: #333;
+      }
+
+      .btn-toggle:hover {
+        background: #e0a800;
+      }
+
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .stat-label {
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+
+      .empty-state i {
+        font-size: 80px;
+        color: #ddd;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-header">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="mb-0"><i class="fas fa-tags"></i> Quản Lý Khuyến Mãi</h1>
+            <small>Tạo và quản lý mã giảm giá cho khách hàng</small>
+          </div>
+          <a href="{{ url_for('admin_dashboard') }}" class="btn btn-light">
+            <i class="fas fa-arrow-left"></i> Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <!-- Statistics -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-number">{{ stats.total }}</div>
+          <div class="stat-label">Tổng khuyến mãi</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" style="color: #28a745">
+            {{ stats.active }}
+          </div>
+          <div class="stat-label">Đang hoạt động</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ stats.total_uses }}</div>
+          <div class="stat-label">Lượt sử dụng</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">
+            {{ "{:,.0f}".format(stats.total_discount) }}đ
+          </div>
+          <div class="stat-label">Tổng giảm giá</div>
+        </div>
+      </div>
+
+      <!-- Add New Promotion -->
+      <div class="promo-card">
+        <h3><i class="fas fa-plus-circle"></i> Thêm Khuyến Mãi Mới</h3>
+        <form action="{{ url_for('admin_add_promotion') }}" method="POST">
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <label class="form-label"
+                >Mã khuyến mãi <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                name="code"
+                class="form-control"
+                placeholder="VD: SUMMER2025"
+                required
+                pattern="[A-Z0-9]+"
+                title="Chỉ chữ IN HOA và số"
+              />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label"
+                >Giảm giá (%) <span class="text-danger">*</span></label
+              >
+              <input
+                type="number"
+                name="discount_percent"
+                class="form-control"
+                min="1"
+                max="100"
+                required
+              />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">Đơn tối thiểu (đ)</label>
+              <input
+                type="number"
+                name="min_amount"
+                class="form-control"
+                value="0"
+                min="0"
+                step="1000"
+              />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">Số lượt dùng</label>
+              <input
+                type="number"
+                name="max_uses"
+                class="form-control"
+                placeholder="Để trống = không giới hạn"
+                min="1"
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <label class="form-label"
+                >Ngày bắt đầu <span class="text-danger">*</span></label
+              >
+              <input
+                type="date"
+                name="start_date"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label"
+                >Ngày kết thúc <span class="text-danger">*</span></label
+              >
+              <input
+                type="date"
+                name="end_date"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Mô tả</label>
+              <input
+                type="text"
+                name="description"
+                class="form-control"
+                placeholder="VD: Giảm giá mùa hè cho khách hàng mới"
+              />
+            </div>
+          </div>
+
+          <button type="submit" class="btn-add">
+            <i class="fas fa-plus"></i> Thêm Khuyến Mãi
+          </button>
+        </form>
+      </div>
+
+      <!-- Promotions List -->
+      <div class="promo-table">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Mã KM</th>
+              <th>Mô tả</th>
+              <th>Giảm giá</th>
+              <th>Đơn tối thiểu</th>
+              <th>Lượt dùng</th>
+              <th>Thời gian</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if promotions %} {% for promo in promotions %}
+            <tr>
+              <td><span class="promo-code">{{ promo.code }}</span></td>
+              <td>{{ promo.description or 'Không có mô tả' }}</td>
+              <td>
+                <strong style="color: var(--primary)"
+                  >{{ promo.discount_percent }}%</strong
+                >
+              </td>
+              <td>{{ "{:,.0f}".format(promo.min_amount) }}đ</td>
+              <td>
+                {{ promo.current_uses }} {% if promo.max_uses %} / {{
+                promo.max_uses }} {% else %} / ∞ {% endif %}
+              </td>
+              <td>
+                <small>
+                  {{ promo.start_date.strftime('%d/%m/%Y') }}<br />
+                  → {{ promo.end_date.strftime('%d/%m/%Y') }}
+                </small>
+              </td>
+              <td>
+                {% if promo.is_valid() %}
+                <span class="badge-active"
+                  ><i class="fas fa-check-circle"></i> Hoạt động</span
+                >
+                {% elif promo.end_date < now %}
+                <span class="badge-expired"
+                  ><i class="fas fa-times-circle"></i> Hết hạn</span
+                >
+                {% else %}
+                <span class="badge-inactive"
+                  ><i class="fas fa-pause-circle"></i> Tắt</span
+                >
+                {% endif %}
+              </td>
+              <td>
+                <form
+                  method="POST"
+                  action="{{ url_for('admin_toggle_promotion', promo_id=promo.id) }}"
+                  style="display: inline"
+                >
+                  <button
+                    type="submit"
+                    class="btn-action btn-toggle"
+                    title="{{ 'Tắt' if promo.active else 'Bật' }}"
+                  >
+                    <i class="fas fa-power-off"></i>
+                  </button>
+                </form>
+                <button
+                  class="btn-action btn-edit"
+                  onclick="editPromotion({{ promo.id }}, '{{ promo.code }}', {{ promo.discount_percent }}, {{ promo.min_amount }}, {{ promo.max_uses or 'null' }}, '{{ promo.start_date }}', '{{ promo.end_date }}', '{{ promo.description or '' }}')"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editModal"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <form
+                  method="POST"
+                  action="{{ url_for('admin_delete_promotion', promo_id=promo.id) }}"
+                  style="display: inline"
+                  onsubmit="return confirm('Xác nhận xóa khuyến mãi này?')"
+                >
+                  <button type="submit" class="btn-action btn-delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr>
+              <td colspan="8">
+                <div class="empty-state">
+                  <i class="fas fa-tags"></i>
+                  <h4>Chưa có khuyến mãi nào</h4>
+                  <p>Thêm khuyến mãi đầu tiên ở form bên trên</p>
+                </div>
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div
+            class="modal-header"
+            style="
+              background: linear-gradient(135deg, var(--primary), #a00d26);
+              color: white;
+            "
+          >
+            <h5 class="modal-title">
+              <i class="fas fa-edit"></i> Chỉnh Sửa Khuyến Mãi
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form id="editForm" method="POST">
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Mã khuyến mãi</label>
+                  <input
+                    type="text"
+                    name="code"
+                    id="edit_code"
+                    class="form-control"
+                    readonly
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Giảm giá (%)</label>
+                  <input
+                    type="number"
+                    name="discount_percent"
+                    id="edit_discount"
+                    class="form-control"
+                    min="1"
+                    max="100"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Đơn tối thiểu (đ)</label>
+                  <input
+                    type="number"
+                    name="min_amount"
+                    id="edit_min_amount"
+                    class="form-control"
+                    min="0"
+                    step="1000"
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Số lượt dùng</label>
+                  <input
+                    type="number"
+                    name="max_uses"
+                    id="edit_max_uses"
+                    class="form-control"
+                    min="1"
+                  />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Ngày bắt đầu</label>
+                  <input
+                    type="date"
+                    name="start_date"
+                    id="edit_start_date"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Ngày kết thúc</label>
+                  <input
+                    type="date"
+                    name="end_date"
+                    id="edit_end_date"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Mô tả</label>
+                <input
+                  type="text"
+                  name="description"
+                  id="edit_description"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Hủy
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Lưu thay đổi
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function editPromotion(
+        id,
+        code,
+        discount,
+        minAmount,
+        maxUses,
+        startDate,
+        endDate,
+        description
+      ) {
+        document.getElementById(
+          "editForm"
+        ).action = `/admin/promotions/${id}/edit`;
+        document.getElementById("edit_code").value = code;
+        document.getElementById("edit_discount").value = discount;
+        document.getElementById("edit_min_amount").value = minAmount;
+        document.getElementById("edit_max_uses").value = maxUses || "";
+        document.getElementById("edit_start_date").value = startDate;
+        document.getElementById("edit_end_date").value = endDate;
+        document.getElementById("edit_description").value = description;
+      }
+
+      // Set min date to today
+      const today = new Date().toISOString().split("T")[0];
+      document.querySelectorAll('input[name="start_date"]').forEach((input) => {
+        input.min = today;
+      });
+    </script>
+  </body>
+</html>

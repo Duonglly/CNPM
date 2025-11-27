@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Khách Sạn Mường Thanh - Đặt Phòng Online</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary: #c8102e;
+        --primary-dark: #a00d26;
+        --secondary: #f8f9fa;
+        --text-dark: #333;
+        --text-light: #666;
+        --border: #e0e0e0;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+      }
+
+      body {
+        /* Đã cập nhật font-family để ưu tiên các font hỗ trợ tiếng Việt tốt */
+        font-family: Arial, "Helvetica Neue", Helvetica, "Segoe UI", Tahoma,
+          Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--text-dark);
+        background: #fff;
+      }
+
+      /* Header */
+      .header {
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--primary-dark) 100%
+        );
+        color: white;
+        padding: 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .top-bar {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 8px 0;
+        font-size: 14px;
+      }
+
+      .top-bar .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .contact-info {
+        display: flex;
+        gap: 25px;
+      }
+
+      .contact-info span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+      }
+
+      .logo {
+        font-size: 28px;
+        font-weight: bold;
+        text-decoration: none;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo span {
+        background: white;
+        color: var(--primary);
+        padding: 5px 10px;
+        border-radius: 5px;
+      }
+
+      .nav-menu {
+        display: flex;
+        gap: 30px;
+        list-style: none;
+      }
+
+      .nav-menu a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity 0.3s;
+        font-size: 15px;
+      }
+
+      .nav-menu a:hover {
+        opacity: 0.8;
+      }
+
+      .user-menu {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .btn {
+        padding: 10px 25px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        display: inline-block;
+      }
+
+      .btn-primary {
+        background: white;
+        color: var(--primary);
+      }
+
+      .btn-primary:hover {
+        background: var(--secondary);
+      }
+
+      .btn-outline {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+      }
+
+      .btn-outline:hover {
+        background: white;
+        color: var(--primary);
+      }
+
+      /* Dropdown Menu Styles */
+      .dropdown-menu-wrapper {
+        position: relative;
+      }
+      .btn-user-dropdown {
+        background: transparent;
+        border: 2px solid white;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: all 0.3s;
+        font-size: 14px;
+      }
+      .btn-user-dropdown:hover {
+        background: white;
+        color: var(--primary);
+      }
+      .user-avatar {
+        font-size: 18px;
+      }
+      .user-name {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .dropdown-arrow {
+        font-size: 10px;
+        transition: transform 0.3s;
+      }
+      .dropdown-menu-wrapper:hover .dropdown-arrow {
+        transform: rotate(180deg);
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 10px;
+        background: white;
+        min-width: 220px;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        z-index: 1000;
+      }
+      .dropdown-menu-wrapper:hover .dropdown-content {
+        display: block;
+        animation: dropdownFade 0.3s ease;
+      }
+      @keyframes dropdownFade {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        color: var(--text-dark);
+        text-decoration: none;
+        transition: background 0.2s;
+        font-size: 14px;
+      }
+      .dropdown-item:hover {
+        background: var(--secondary);
+      }
+      .dropdown-item.logout {
+        color: var(--danger);
+      }
+      .dropdown-item.logout:hover {
+        background: #fee;
+      }
+      .item-icon {
+        font-size: 16px;
+        width: 20px;
+        text-align: center;
+      }
+      .dropdown-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 5px 0;
+      }
+      /* End Dropdown Menu Styles */
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Hero Section */
+      .hero {
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+          url("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600")
+            center/cover;
+        height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+      }
+
+      .hero-content h1 {
+        font-size: 48px;
+        margin-bottom: 15px;
+        font-weight: 700;
+      }
+
+      .hero-content p {
+        font-size: 20px;
+        margin-bottom: 30px;
+        opacity: 0.95;
+      }
+
+      /* Search Box */
+      .search-box {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        margin-top: -50px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        position: relative;
+        z-index: 10;
+      }
+
+      .search-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        align-items: end;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-group label {
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 14px;
+      }
+
+      .form-group input,
+      .form-group select {
+        padding: 12px 15px;
+        border: 2px solid var(--border);
+        border-radius: 5px;
+        font-size: 15px;
+        transition: border-color 0.3s;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      .btn-search {
+        background: var(--primary);
+        color: white;
+        padding: 12px 40px;
+        border: none;
+        border-radius: 5px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .btn-search:hover {
+        background: var(--primary-dark);
+      }
+
+      /* Locations Section */
+      .locations {
+        padding: 60px 0;
+        background: var(--secondary);
+      }
+
+      .section-title {
+        text-align: center;
+        margin-bottom: 50px;
+      }
+
+      .section-title h2 {
+        font-size: 36px;
+        margin-bottom: 10px;
+        color: var(--text-dark);
+      }
+
+      .section-title p {
+        color: var(--text-light);
+        font-size: 18px;
+      }
+
+      .location-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+      }
+
+      .location-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+      }
+
+      .location-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .location-image {
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+      }
+
+      .location-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--primary);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .location-info {
+        padding: 20px;
+      }
+
+      .location-info h3 {
+        font-size: 22px;
+        margin-bottom: 8px;
+        color: var(--text-dark);
+      }
+
+      .location-info p {
+        color: var(--text-light);
+        margin-bottom: 15px;
+        font-size: 14px;
+      }
+
+      .location-stats {
+        display: flex;
+        gap: 20px;
+        color: var(--text-light);
+        font-size: 14px;
+      }
+
+      /* Rooms Section */
+      .rooms {
+        padding: 60px 0;
+      }
+
+      .room-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+      }
+
+      .room-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .room-image {
+        height: 250px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+      }
+
+      .room-type-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--primary);
+        padding: 6px 15px;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .room-price {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        background: var(--primary);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: 700;
+        font-size: 18px;
+      }
+
+      .room-price small {
+        font-size: 12px;
+        font-weight: 400;
+      }
+
+      .room-content {
+        padding: 25px;
+      }
+
+      .room-content h3 {
+        font-size: 22px;
+        margin-bottom: 10px;
+        color: var(--text-dark);
+      }
+
+      .room-amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 15px 0;
+      }
+
+      .amenity-tag {
+        background: var(--secondary);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        color: var(--text-dark);
+      }
+
+      .room-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 1px solid var(--border);
+      }
+
+      .room-capacity {
+        color: var(--text-light);
+        font-size: 14px;
+      }
+
+      .btn-book {
+        background: var(--primary);
+        color: white;
+        padding: 10px 25px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.3s;
+      }
+
+      .btn-book:hover {
+        background: var(--primary-dark);
+      }
+
+      /* Features Section */
+      .features {
+        padding: 60px 0;
+        background: var(--secondary);
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+      }
+
+      .feature-item {
+        text-align: center;
+        padding: 30px 20px;
+        background: white;
+        border-radius: 10px;
+        transition: transform 0.3s;
+      }
+
+      .feature-item:hover {
+        transform: translateY(-5px);
+      }
+
+      .feature-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 32px;
+      }
+
+      .feature-item h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+        color: var(--text-dark);
+      }
+
+      .feature-item p {
+        color: var(--text-light);
+        font-size: 14px;
+      }
+
+      /* Footer */
+      .footer {
+        background: #2c3e50;
+        color: white;
+        padding: 50px 0 20px;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        margin-bottom: 30px;
+      }
+
+      .footer-section h3 {
+        margin-bottom: 20px;
+        font-size: 20px;
+      }
+
+      .footer-section ul {
+        list-style: none;
+      }
+
+      .footer-section ul li {
+        margin-bottom: 10px;
+      }
+
+      .footer-section a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer-section a:hover {
+        color: white;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+      }
+
+      .social-links a {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s;
+      }
+
+      .social-links a:hover {
+        background: var(--primary);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 28px;
+        cursor: pointer;
+        color: var(--text-light);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .nav-menu {
+          display: none;
+        }
+
+        .hero-content h1 {
+          font-size: 32px;
+        }
+
+        .search-form {
+          grid-template-columns: 1fr;
+        }
+
+        .room-grid,
+        .location-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .user-name {
+          display: none;
+        }
+
+        .dropdown-content {
+          right: 0;
+          left: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="top-bar">
+        <div class="container">
+          <div class="contact-info">
+            <span>📞 1900 1177</span>
+            <span>✉️ info@muongthanh.vn</span>
+          </div>
+          <div class="user-menu">
+            {% if session.get('user_id') %}
+            <div class="dropdown-menu-wrapper">
+              <button class="btn-user-dropdown">
+                <span class="user-avatar">👤</span>
+                <span class="user-name"
+                  >{{ session.get('full_name', 'Khách hàng') }}</span
+                >
+                <span class="dropdown-arrow">▼</span>
+              </button>
+              <div class="dropdown-content">
+                <a href="{{ url_for('my_account') }}" class="dropdown-item">
+                  <span class="item-icon">👤</span> Tài khoản của tôi
+                </a>
+                <a href="{{ url_for('my_bookings') }}" class="dropdown-item">
+                  <span class="item-icon">📋</span> Lịch sử đặt phòng
+                </a>
+                {% if session.get('role') == 'admin' %}
+                <a
+                  href="{{ url_for('admin_dashboard') }}"
+                  class="dropdown-item"
+                >
+                  <span class="item-icon">⚙️</span> Quản trị
+                </a>
+                {% endif %}
+                <div class="dropdown-divider"></div>
+                <a href="{{ url_for('logout') }}" class="dropdown-item logout">
+                  <span class="item-icon">🚪</span> Đăng xuất
+                </a>
+              </div>
+            </div>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-outline"
+              >Đăng nhập</a
+            >
+            <a href="{{ url_for('register') }}" class="btn btn-primary"
+              >Đăng ký</a
+            >
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <nav class="nav-container">
+          <a href="/" class="logo"> <span>MT</span> Mường Thanh </a>
+          <ul class="nav-menu">
+            <li><a href="/">Trang chủ</a></li>
+            <li><a href="/search">Tìm phòng</a></li>
+            <li><a href="/locations">Địa điểm</a></li>
+            <li><a href="/promotions">Khuyến mãi</a></li>
+            <li><a href="/contact">Liên hệ</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Khách Sạn Mường Thanh</h1>
+        <p>Trải nghiệm sang trọng - Dịch vụ hoàn hảo</p>
+      </div>
+    </section>
+
+    <div class="container">
+      <div class="search-box">
+        <form class="search-form" action="/search" method="GET">
+          <div class="form-group">
+            <label>Địa điểm</label>
+            <select name="location" required>
+              <option value="">Chọn địa điểm</option>
+              <option value="1">Hà Nội</option>
+              <option value="2">Đà Nẵng</option>
+              <option value="3">Nha Trang</option>
+              <option value="4">TP. Hồ Chí Minh</option>
+              <option value="5">Huế</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Ngày nhận phòng</label>
+            <input type="date" name="check_in" required />
+          </div>
+          <div class="form-group">
+            <label>Ngày trả phòng</label>
+            <input type="date" name="check_out" required />
+          </div>
+          <div class="form-group">
+            <label>Số khách</label>
+            <select name="guests">
+              <option value="1">1 người</option>
+              <option value="2">2 người</option>
+              <option value="3">3 người</option>
+              <option value="4">4 người</option>
+              <option value="5">5+ người</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Loại phòng</label>
+            <select name="room_type">
+              <option value="">Tất cả</option>
+              <option value="Deluxe">Deluxe</option>
+              <option value="Family">Family</option>
+              <option value="Suite">Suite</option>
+              <option value="Suite">Standard</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-search">🔍 Tìm kiếm</button>
+        </form>
+      </div>
+    </div>
+
+    <section class="locations">
+      <div class="container">
+        <div class="section-title">
+          <h2>Địa Điểm Nổi Bật</h2>
+          <p>Khám phá các chi nhánh Mường Thanh trên toàn quốc</p>
+        </div>
+        <div class="location-grid">
+          <div class="location-card">
+            <div
+              class="location-image"
+              style="
+                background-image: url('https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=600');
+              "
+            >
+              <span class="location-badge">12 khách sạn</span>
+            </div>
+            <div class="location-info">
+              <h3>Hà Nội</h3>
+              <p>Thủ đô ngàn năm văn hiến với nhiều di tích lịch sử</p>
+              <div class="location-stats">
+                <span>🏨 12 khách sạn</span>
+                <span>⭐ 4.5/5</span>
+              </div>
+            </div>
+          </div>
+          <div class="location-card">
+            <div
+              class="location-image"
+              style="
+                background-image: url('https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=600');
+              "
+            >
+              <span class="location-badge">8 khách sạn</span>
+            </div>
+            <div class="location-info">
+              <h3>Đà Nẵng</h3>
+              <p>Thành phố đáng sống với bãi biển đẹp nhất Việt Nam</p>
+              <div class="location-stats">
+                <span>🏨 8 khách sạn</span>
+                <span>⭐ 4.7/5</span>
+              </div>
+            </div>
+          </div>
+          <div class="location-card">
+            <div
+              class="location-image"
+              style="
+                background-image: url('https://images.unsplash.com/photo-1540541338287-41700207dee6?w=600');
+              "
+            >
+              <span class="location-badge">6 khách sạn</span>
+            </div>
+            <div class="location-info">
+              <h3>Nha Trang</h3>
+              <p>Thiên đường biển đảo với làn nước trong xanh</p>
+              <div class="location-stats">
+                <span>🏨 6 khách sạn</span>
+                <span>⭐ 4.6/5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="rooms">
+      <div class="container">
+        <div class="section-title">
+          <h2>Phòng Nổi Bật</h2>
+          <p>Những lựa chọn phòng tốt nhất dành cho bạn</p>
+        </div>
+        <div class="room-grid">
+          <div class="room-card">
+            <div
+              class="room-image"
+              style="
+                background-image: url('https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=600');
+              "
+            >
+              <span class="room-type-badge">Deluxe</span>
+              <div class="room-price">
+                1,200,000đ
+                <small>/đêm</small>
+              </div>
+            </div>
+            <div class="room-content">
+              <h3>Phòng Deluxe 2 Giường</h3>
+              <div class="room-amenities">
+                <span class="amenity-tag">📶 Wifi miễn phí</span>
+                <span class="amenity-tag">❄️ Điều hòa</span>
+                <span class="amenity-tag">🛁 Bồn tắm</span>
+                <span class="amenity-tag">📺 TV</span>
+              </div>
+              <div class="room-footer">
+                <span class="room-capacity">👤 Tối đa 2 người</span>
+                <a href="/book-now/1" class="btn-book">Đặt ngay</a>
+              </div>
+            </div>
+          </div>
+          <div class="room-card">
+            <div
+              class="room-image"
+              style="
+                background-image: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600');
+              "
+            >
+              <span class="room-type-badge">Family</span>
+              <div class="room-price">
+                2,000,000đ
+                <small>/đêm</small>
+              </div>
+            </div>
+            <div class="room-content">
+              <h3>Phòng Family 4 Người</h3>
+              <div class="room-amenities">
+                <span class="amenity-tag">📶 Wifi miễn phí</span>
+                <span class="amenity-tag">❄️ Điều hòa</span>
+                <span class="amenity-tag">🍳 Bếp nhỏ</span>
+                <span class="amenity-tag">🛋️ Phòng khách</span>
+              </div>
+              <div class="room-footer">
+                <span class="room-capacity">👤 Tối đa 4 người</span>
+                <a href="/book-now/2" class="btn-book">Đặt ngay</a>
+              </div>
+            </div>
+          </div>
+          <div class="room-card">
+            <div
+              class="room-image"
+              style="
+                background-image: url('https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600');
+              "
+            >
+              <span class="room-type-badge">Suite</span>
+              <div class="room-price">
+                3,500,000đ
+                <small>/đêm</small>
+              </div>
+            </div>
+            <div class="room-content">
+              <h3>Phòng Suite Sang Trọng</h3>
+              <div class="room-amenities">
+                <span class="amenity-tag">📶 Wifi miễn phí</span>
+                <span class="amenity-tag">🛁 Jacuzzi</span>
+                <span class="amenity-tag">🌅 View biển</span>
+                <span class="amenity-tag">🍷 Minibar</span>
+              </div>
+              <div class="room-footer">
+                <span class="room-capacity">👤 Tối đa 2 người</span>
+                <a href="/book-now/3" class="btn-book">Đặt ngay</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container">
+        <div class="section-title">
+          <h2>Tại Sao Chọn Mường Thanh?</h2>
+          <p>Những lý do khách hàng tin tưởng chúng tôi</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-icon">💯</div>
+            <h3>Giá Tốt Nhất</h3>
+            <p>
+              Cam kết giá tốt nhất thị trường, hoàn tiền nếu tìm thấy giá rẻ hơn
+            </p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🏆</div>
+            <h3>Chất Lượng Đảm Bảo</h3>
+            <p>Phòng sạch sẽ, tiện nghi hiện đại, dịch vụ 5 sao</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">💳</div>
+            <h3>Thanh Toán Linh Hoạt</h3>
+            <p>Hỗ trợ nhiều hình thức thanh toán: Momo, ZaloPay, VNPay, QR</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🎁</div>
+            <h3>Ưu Đãi Hấp Dẫn</h3>
+            <p>Chương trình khuyến mãi thường xuyên, giảm giá đến 30%</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Về Mường Thanh</h3>
+            <p>
+              Hệ thống khách sạn hàng đầu Việt Nam với hơn 50 chi nhánh trên
+              toàn quốc.
+            </p>
+            <div class="social-links">
+              <a href="#">📘</a>
+              <a href="#">📷</a>
+              <a href="#">🐦</a>
+              <a href="#">▶️</a>
+            </div>
+          </div>
+          <div class="footer-section">
+            <h3>Liên Kết</h3>
+            <ul>
+              <li><a href="/about">Giới thiệu</a></li>
+              <li><a href="/news">Tin tức</a></li>
+              <li><a href="/careers">Tuyển dụng</a></li>
+              <li><a href="/terms">Điều khoản</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Hỗ Trợ</h3>
+            <ul>
+              <li><a href="/faq">Câu hỏi thường gặp</a></li>
+              <li><a href="/booking-guide">Hướng dẫn đặt phòng</a></li>
+              <li><a href="/payment">Thanh toán</a></li>
+              <li><a href="/contact">Liên hệ</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Liên Hệ</h3>
+            <ul>
+              <li>📞 Hotline: 1900 1177</li>
+              <li>✉️ Email: info@muongthanh.vn</li>
+              <li>📍 Hà Nội, Việt Nam</li>
+              <li>⏰ 24/7 hỗ trợ</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2025 Khách Sạn Mường Thanh. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Set min date for check-in to today
+      const today = new Date().toISOString().split("T")[0];
+      document.querySelector('input[name="check_in"]').min = today;
+
+      // Update check-out min date when check-in changes
+      document
+        .querySelector('input[name="check_in"]')
+        .addEventListener("change", function () {
+          const checkIn = new Date(this.value);
+          checkIn.setDate(checkIn.getDate() + 1);
+          const minCheckOut = checkIn.toISOString().split("T")[0];
+          document.querySelector('input[name="check_out"]').min = minCheckOut;
+          document.querySelector('input[name="check_out"]').value = minCheckOut;
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thống Kê Doanh Thu - Admin</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      :root {
+        --primary: #c8102e;
+      }
+
+      body {
+        background: #f5f7fa;
+      }
+
+      .admin-header {
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+        padding: 20px 0;
+        margin-bottom: 30px;
+      }
+
+      .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-box {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-box::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(
+          135deg,
+          rgba(200, 16, 46, 0.1),
+          transparent
+        );
+        border-radius: 50%;
+        transform: translate(30%, -30%);
+      }
+
+      .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 15px;
+      }
+
+      .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .stat-change {
+        font-size: 13px;
+        margin-top: 10px;
+      }
+
+      .stat-change.positive {
+        color: #28a745;
+      }
+
+      .stat-change.negative {
+        color: #dc3545;
+      }
+
+      .chart-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+      }
+
+      .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .chart-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+      }
+
+      .period-tabs {
+        display: flex;
+        gap: 10px;
+        background: #f8f9fa;
+        padding: 5px;
+        border-radius: 8px;
+      }
+
+      .period-tab {
+        padding: 8px 20px;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .period-tab.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .period-tab:hover:not(.active) {
+        background: rgba(200, 16, 46, 0.1);
+      }
+
+      .filter-bar {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .table-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+
+      .table-card table {
+        margin: 0;
+      }
+
+      .table thead {
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+      }
+
+      .table thead th {
+        border: none;
+        padding: 15px;
+        font-weight: 600;
+      }
+
+      .table tbody tr:hover {
+        background: #f8f9fa;
+      }
+
+      .export-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .export-btn:hover {
+        background: #218838;
+      }
+
+      .top-rooms {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .room-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.3s;
+      }
+
+      .room-item:hover {
+        background: #f8f9fa;
+      }
+
+      .room-item:last-child {
+        border-bottom: none;
+      }
+
+      .room-rank {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary), #a00d26);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+      }
+
+      .room-info {
+        flex: 1;
+        margin-left: 15px;
+      }
+
+      .room-revenue {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-header">
+      <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="mb-0">
+              <i class="fas fa-chart-line"></i> Thống Kê Doanh Thu
+            </h1>
+            <small>Phân tích chi tiết doanh thu và hiệu suất kinh doanh</small>
+          </div>
+          <a href="{{ url_for('admin_dashboard') }}" class="btn btn-light">
+            <i class="fas fa-arrow-left"></i> Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <!-- Statistics Overview -->
+      <div class="stats-overview">
+        <div class="stat-box">
+          <div class="stat-icon">
+            <i class="fas fa-money-bill-wave"></i>
+          </div>
+          <div class="stat-value">
+            {{ "{:,.0f}".format(stats.total_revenue) }}đ
+          </div>
+          <div class="stat-label">Tổng doanh thu</div>
+          <div class="stat-change positive">
+            <i class="fas fa-arrow-up"></i> +{{ stats.revenue_growth }}% so với
+            tháng trước
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="stat-value">{{ stats.total_bookings }}</div>
+          <div class="stat-label">Tổng đặt phòng</div>
+          <div class="stat-change positive">
+            <i class="fas fa-arrow-up"></i> +{{ stats.booking_growth }}% so với
+            tháng trước
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-icon">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <div class="stat-value">
+            {{ "{:,.0f}".format(stats.avg_booking_value) }}đ
+          </div>
+          <div class="stat-label">Giá trị đặt phòng TB</div>
+          <div
+            class="stat-change {{ 'positive' if stats.avg_value_change >= 0 else 'negative' }}"
+          >
+            <i
+              class="fas fa-arrow-{{ 'up' if stats.avg_value_change >= 0 else 'down' }}"
+            ></i>
+            {{ stats.avg_value_change|abs }}% so với tháng trước
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-icon">
+            <i class="fas fa-percentage"></i>
+          </div>
+          <div class="stat-value">{{ stats.occupancy_rate }}%</div>
+          <div class="stat-label">Tỷ lệ lấp đầy</div>
+          <div class="stat-change positive">
+            <i class="fas fa-arrow-up"></i> +{{ stats.occupancy_change }}% so
+            với tháng trước
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="row align-items-center">
+          <div class="col-md-3">
+            <label class="form-label fw-bold">Khoảng thời gian</label>
+            <select class="form-select" id="periodSelect" onchange="loadData()">
+              <option value="day">Hôm nay</option>
+              <option value="week">Tuần này</option>
+              <option value="month" selected>Tháng này</option>
+              <option value="year">Năm nay</option>
+              <option value="custom">Tùy chỉnh</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-bold">Từ ngày</label>
+            <input
+              type="date"
+              class="form-control"
+              id="startDate"
+              onchange="loadData()"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-bold">Đến ngày</label>
+            <input
+              type="date"
+              class="form-control"
+              id="endDate"
+              onchange="loadData()"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-bold">&nbsp;</label>
+            <button class="btn export-btn w-100" onclick="exportData()">
+              <i class="fas fa-download"></i> Xuất báo cáo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Revenue Chart -->
+        <div class="col-lg-8">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">Biểu Đồ Doanh Thu</h5>
+              <div class="period-tabs">
+                <button class="period-tab" onclick="changeChartPeriod('day')">
+                  Ngày
+                </button>
+                <button
+                  class="period-tab active"
+                  onclick="changeChartPeriod('month')"
+                >
+                  Tháng
+                </button>
+                <button class="period-tab" onclick="changeChartPeriod('year')">
+                  Năm
+                </button>
+              </div>
+            </div>
+            <canvas id="revenueChart" height="80"></canvas>
+          </div>
+
+          <!-- Booking Status Chart -->
+          <div class="chart-card">
+            <h5 class="chart-title">Trạng Thái Đặt Phòng</h5>
+            <canvas id="bookingStatusChart" height="80"></canvas>
+          </div>
+        </div>
+
+        <!-- Top Rooms -->
+        <div class="col-lg-4">
+          <div class="top-rooms">
+            <h5 class="chart-title mb-4">Top 5 Phòng Doanh Thu Cao</h5>
+            {% for room in top_rooms %}
+            <div class="room-item">
+              <div class="room-rank">{{ loop.index }}</div>
+              <div class="room-info">
+                <strong>{{ room.room_type }} - {{ room.room_number }}</strong
+                ><br />
+                <small class="text-muted"
+                  >{{ room.bookings_count }} đặt phòng</small
+                >
+              </div>
+              <div class="room-revenue">
+                {{ "{:,.0f}".format(room.revenue) }}đ
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Payment Methods -->
+          <div class="chart-card mt-4">
+            <h5 class="chart-title mb-3">Phương Thức Thanh Toán</h5>
+            <canvas id="paymentMethodChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Table -->
+      <div class="table-card mt-4">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Mã ĐP</th>
+              <th>Khách hàng</th>
+              <th>Phòng</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Thanh toán</th>
+              <th>Doanh thu</th>
+              <th>Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in recent_bookings %}
+            <tr>
+              <td><strong>#{{ booking.id }}</strong></td>
+              <td>{{ booking.guest_name }}</td>
+              <td>
+                {{ booking.room.room_type }} - {{ booking.room.room_number }}
+              </td>
+              <td>{{ booking.check_in.strftime('%d/%m/%Y') }}</td>
+              <td>{{ booking.check_out.strftime('%d/%m/%Y') }}</td>
+              <td>
+                {% if booking.payment_method == 'momo' %}
+                <span class="badge" style="background: #a50064">MoMo</span>
+                {% elif booking.payment_method == 'vnpay' %}
+                <span class="badge bg-primary">VNPay</span>
+                {% elif booking.payment_method == 'zalopay' %}
+                <span class="badge bg-info">ZaloPay</span>
+                {% else %}
+                <span class="badge bg-warning text-dark">Banking</span>
+                {% endif %}
+              </td>
+              <td>
+                <strong style="color: var(--primary)"
+                  >{{ "{:,.0f}".format(booking.total_price) }}đ</strong
+                >
+              </td>
+              <td>
+                {% if booking.payment_status == 'paid' %}
+                <span class="badge bg-success">Đã thanh toán</span>
+                {% else %}
+                <span class="badge bg-danger">Chưa thanh toán</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Revenue Chart
+      const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+      const revenueChart = new Chart(revenueCtx, {
+          type: 'line',
+          data: {
+              labels: {{ revenue_labels|tojson }},
+              datasets: [{
+                  label: 'Doanh thu (VNĐ)',
+                  data: {{ revenue_data|tojson }},
+                  borderColor: '#c8102e',
+                  backgroundColor: 'rgba(200, 16, 46, 0.1)',
+                  tension: 0.4,
+                  fill: true
+              }]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  legend: {
+                      display: true
+                  }
+              },
+              scales: {
+                  y: {
+                      beginAtZero: true,
+                      ticks: {
+                          callback: function(value) {
+                              return value.toLocaleString('vi-VN') + 'đ';
+                          }
+                      }
+                  }
+              }
+          }
+      });
+
+      // Booking Status Chart
+      const statusCtx = document.getElementById('bookingStatusChart').getContext('2d');
+      new Chart(statusCtx, {
+          type: 'bar',
+          data: {
+              labels: ['Chờ xác nhận', 'Đã xác nhận', 'Hoàn thành', 'Đã hủy'],
+              datasets: [{
+                  label: 'Số lượng',
+                  data: {{ booking_status_data|tojson }},
+                  backgroundColor: [
+                      '#ffc107',
+                      '#28a745',
+                      '#007bff',
+                      '#dc3545'
+                  ]
+              }]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  legend: {
+                      display: false
+                  }
+              }
+          }
+      });
+
+      // Payment Method Chart
+      const paymentCtx = document.getElementById('paymentMethodChart').getContext('2d');
+      new Chart(paymentCtx, {
+          type: 'doughnut',
+          data: {
+              labels: ['MoMo', 'VNPay', 'ZaloPay', 'Banking'],
+              datasets: [{
+                  data: {{ payment_method_data|tojson }},
+                  backgroundColor: [
+                      '#a50064',
+                      '#0066b2',
+                      '#008fe5',
+                      '#ff6b00'
+                  ]
+              }]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  legend: {
+                      position: 'bottom'
+                  }
+              }
+          }
+      });
+
+      function changeChartPeriod(period) {
+          document.querySelectorAll('.period-tab').forEach(tab => {
+              tab.classList.remove('active');
+          });
+          event.target.classList.add('active');
+          loadData();
+      }
+
+      function loadData() {
+          // TODO: Implement AJAX data loading
+          console.log('Loading data...');
+      }
+
+      function exportData() {
+          window.location.href = '/admin/revenue/export';
+      }
+    </script>
+  </body>
+</html>

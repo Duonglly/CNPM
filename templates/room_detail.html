@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ room.room_type or 'Phòng' }} - Chi tiết</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        .hero-space { height: 80px; }
+        .room-image { width: 100%; height: 420px; object-fit: cover; border-radius: 8px; }
+        .price-badge { background: #c8102e; color: white; padding: 8px 14px; border-radius: 8px; font-weight: 700; }
+        .amenity-badge { background: #f1f3f5; color: #333; margin-right: 8px; margin-bottom: 6px; padding: 6px 10px; border-radius: 18px; display: inline-block; }
+        .btn-primary-custom { background: #c8102e; border: none; }
+    </style>
+</head>
+<body class="bg-light">
+    <header class="py-2 bg-danger text-white">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="/" class="text-white text-decoration-none"><strong>MT</strong> Mường Thanh</a>
+            <div>
+                <a href="/login" class="text-white me-3">Đăng nhập</a>
+                <a href="/register" class="text-white">Đăng ký</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row gy-4">
+            <div class="col-lg-7">
+                {% if room.image %}
+                    <img src="{{ url_for('static', filename='images/' + (room.image if room.image else 'default-room.jpg')) }}" alt="{{ room.room_type }}" class="room-image shadow-sm">
+                {% else %}
+                    <div class="room-image bg-secondary d-flex align-items-center justify-content-center text-white">Hình ảnh phòng</div>
+                {% endif %}
+
+                {% if room.description %}
+                <div class="mt-4 bg-white p-3 rounded shadow-sm">
+                    <h5>Mô tả</h5>
+                    <p class="mb-0">{{ room.description }}</p>
+                </div>
+                {% endif %}
+
+                <div class="mt-4 bg-white p-3 rounded shadow-sm">
+                    <h5>Đánh giá & Bình luận ({{ reviews|length }})</h5>
+                    {% if reviews and reviews|length > 0 %}
+                        {% for r in reviews %}
+                            <div class="border-bottom py-3">
+                                <strong>{{ r.user.full_name if r.user else 'Khách' }}</strong>
+                                <span class="text-muted"> • {{ r.created_at.strftime('%d/%m/%Y') if r.created_at else '' }}</span>
+                                <div>
+                                    {% for i in range(r.rating) %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% endfor %}
+                                    {% for i in range(5 - r.rating) %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endfor %}
+                                    <span class="ms-2 badge bg-secondary">{{ r.rating }}/5</span>
+                                </div>
+                                <p class="mt-2 mb-0">{{ r.comment }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Chưa có đánh giá nào cho phòng này.</p>
+                        <small>Bạn có thể đánh giá phòng này sau khi đã Check-out và đơn hàng chuyển sang trạng thái "Hoàn thành" tại mục Lịch sử đặt phòng.</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="position-sticky" style="top:100px;">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h4 class="mb-0">{{ room.room_type or room.room_number }}</h4>
+                                    <small class="text-muted">{{ hotel.name if hotel else '' }}</small>
+                                </div>
+                                <div class="price-badge">{{ room.price | format_currency }}đ</div>
+                            </div>
+
+                            <div class="mb-3 border-bottom pb-3">
+                                <strong>Tiện nghi</strong>
+                                <div class="mt-2">
+                                    {% if room.amenities %}
+                                        {% for a in room.amenities %}
+                                            <span class="amenity-badge"><i class="{{ a.icon }} me-1"></i>{{ a.name }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-muted">Không có dữ liệu tiện nghi</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <strong>Sức chứa</strong>
+                                <div><i class="fas fa-user-friends me-1"></i> {{ room.max_people or 'N/A' }} người</div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <a id="quickBook" data-href="{{ url_for('booking', room_id=room.id) }}" class="btn btn-lg btn-primary-custom" role="button">
+                                    <i class="fas fa-calendar-alt"></i> Bắt đầu Đặt phòng ngay
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-4 bg-dark text-white">
+        <div class="container text-center small">© 2025 Khách Sạn Mường Thanh. All rights reserved.</div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Ensure quick-book link always navigates (works around cases where click is blocked)
+        (function(){
+            const el = document.getElementById('quickBook');
+            if (!el) return;
+            el.addEventListener('click', function(e){
+                e.preventDefault();
+                const href = el.getAttribute('data-href');
+                console.log('QuickBook clicked, navigating to', href);
+                window.location.href = href;
+            });
+        })();
+    </script>
+</body>
+</html>
